@@ -1,5 +1,6 @@
 -- Crear la base de datos
-CREATE DATABASE IF NOT EXISTS ControlAccesoPYME;
+DROP DATABASE IF EXISTS ControlAccesoPYME;
+CREATE DATABASE ControlAccesoPYME;
 USE ControlAccesoPYME;
 
 -- Tabla para almacenar la información de los empleados
