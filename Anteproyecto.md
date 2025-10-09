@@ -18,11 +18,9 @@ Ciclo Formativo de Grado Superior en Desarrollo de Aplicaciones Multiplataforma 
 
 <h2 style="font-size: 24px; margin-bottom: 0;">ANTEPROYECTO DE FCT</h2>
 
-<h1 style="font-size: 30px; margin-top: 10px;">
-SISTEMA INTEGRAL DE CONTROL DE ACCESO Y GESTIÓN DE HORARIOS CON RFID, ESP32 Y APLICACIÓN MÓVIL
+<h1 style="font-size: 32px; margin-top: 10px;">
+SISTEMA INTEGRAL DE CONTROL DE ACCESO Y GESTIÓN DE HORARIOS CON RFID, ESP32, API-REST Y APLICACIÓN MÓVIL
 </h1>
-
-
 
 <br><br><br>
 
@@ -40,9 +38,9 @@ SISTEMA INTEGRAL DE CONTROL DE ACCESO Y GESTIÓN DE HORARIOS CON RFID, ESP32 Y A
 <!-- Logotipos opcionales -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; max-width: 80%; margin-left: auto; margin-right: auto;">
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Logo_da_Xunta_de_Galicia_%282021%29.svg"
-         alt="Logo Xunta de Galicia" width="18%">
+         alt="Logo Xunta de Galicia" width="25%">
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/63/EscudoVigo.svg"
-         alt="Escudo de Vigo" width="6%">
+         alt="Escudo de Vigo" width="10%">
     <!-- Puedes añadir el logo del centro educativo o de la empresa si lo deseas -->
 </div>
 
@@ -206,5 +204,3 @@ Este proyecto destaca por:
 - **Documentación técnica completa** para mantenimiento.
 
 ---
-
-*Este anteproyecto representa una evolución significativa del concepto inicial, transformándolo en un sistema empresarial completo y profesional, adecuado para las expectativas de un proyecto de fin de ciclo DAM.*
