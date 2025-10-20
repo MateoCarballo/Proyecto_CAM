@@ -29,7 +29,7 @@ const char* NOMBRE_RED     = "iPhone de Mateo";
 const char* CONTRASENA_RED = "Clave1652C";
 
 // Dirección del servidor backend donde se enviará el UID de la tarjeta leída
-const char* URL_SERVIDOR = "http://192.168.1.50:20000/card/read";
+const char* URL_SERVIDOR = "http://172.20.10.6:20000/card/read";
 
 // -------------------- INSTANCIAS --------------------
 
