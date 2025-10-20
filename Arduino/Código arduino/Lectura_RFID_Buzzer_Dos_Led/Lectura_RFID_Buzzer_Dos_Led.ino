@@ -1,123 +1,192 @@
+// -------------------- LIBRERÍAS --------------------
+
+// Permite conectar el ESP32 a redes WiFi
 #include <WiFi.h>
+
+// Permite hacer peticiones HTTP (GET, POST, etc.) desde el ESP32
 #include <HTTPClient.h>
+
+// Librería de comunicación SPI (Serial Peripheral Interface), necesaria para el lector RC522
 #include <SPI.h>
+
+// Librería específica para el lector RFID RC522
+// Proporciona funciones para detectar tarjetas, leer UID, etc.
 #include <MFRC522.h>
 
-// Pines RC522 (ajusta si tus conexiones difieren)
-#define SS_PIN  5
-#define RST_PIN 22
+// -------------------- CONSTANTES --------------------
 
-// Pines de salida
-#define LED_ROJO 2
-#define LED_VERDE 4
-#define BUZZER 15
+// Pines del lector RFID (RC522)
+constexpr uint8_t PIN_SS   = 5;   // Pin de selección de esclavo (SDA)
+constexpr uint8_t PIN_RST  = 22;  // Pin de reset del módulo RFID
 
-MFRC522 rfid(SS_PIN, RST_PIN);
+// Pines de salida para LEDs y zumbador
+constexpr uint8_t PIN_LED_ROJO  = 2;
+constexpr uint8_t PIN_LED_VERDE = 4;
+constexpr uint8_t PIN_BUZZER    = 15;
 
-// Credenciales WiFi
-const char* ssid = "Wifi-Pachorrudo";
-const char* password = "Angel2023Martin2025";
+// Credenciales de la red WiFi
+const char* NOMBRE_RED     = "iPhone de Mateo";
+const char* CONTRASENA_RED = "Clave1652C";
 
-// URL de tu API Spring Boot (ajusta IP y puerto)
-const char* serverUrl = "http://192.168.1.50:20000/card/read";
+// Dirección del servidor backend donde se enviará el UID de la tarjeta leída
+const char* URL_SERVIDOR = "http://192.168.1.50:20000/card/read";
 
-void setup() {
-  Serial.begin(115200);
+// -------------------- INSTANCIAS --------------------
 
-  // Inicializar pines
-  pinMode(LED_ROJO, OUTPUT);
-  pinMode(LED_VERDE, OUTPUT);
-  pinMode(BUZZER, OUTPUT);
-  digitalWrite(LED_ROJO, HIGH);
-  digitalWrite(LED_VERDE, LOW);
+// Crea un objeto del tipo MFRC522 para controlar el lector RFID
+MFRC522 lectorRFID(PIN_SS, PIN_RST);
 
-  // Inicializar RFID
-  SPI.begin(18, 19, 23, SS_PIN); // SCK, MISO, MOSI, SS
-  rfid.PCD_Init();
+// -------------------- FUNCIONES DE CONFIGURACIÓN --------------------
 
-  // Conexión WiFi
-  Serial.println("Conectando a WiFi...");
-  WiFi.begin(ssid, password);
+// Inicializa la conexión WiFi del ESP32
+void configurarWiFi() {
+  Serial.println("Conectando a la red WiFi...");
+  WiFi.begin(NOMBRE_RED, CONTRASENA_RED);  // Inicia conexión WiFi
+
+  // Espera hasta que se conecte
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\n✅ WiFi conectado");
-  Serial.println(WiFi.localIP());
 
-  Serial.println("ESP32 + RC522 listo. Acerca una tarjeta...");
+  // Muestra la IP local obtenida
+  Serial.println("\nConectado a WiFi. IP asignada: " + WiFi.localIP().toString());
 }
 
-void playBuzzerSuccess() {
-  tone(BUZZER, 1500, 100);
+// Inicializa la comunicación SPI y el módulo RC522
+void inicializarLectorRFID() {
+  // Inicia el bus SPI con pines específicos para ESP32
+  SPI.begin(18, 19, 23, PIN_SS);  // SCK, MISO, MOSI, SS
+
+  // Inicializa el módulo RFID RC522
+  lectorRFID.PCD_Init();
+
+  Serial.println("Lector RFID inicializado.");
+}
+
+// Configura los pines de salida para LEDs y buzzer
+void configurarSalidas() {
+  pinMode(PIN_LED_ROJO, OUTPUT);
+  pinMode(PIN_LED_VERDE, OUTPUT);
+  pinMode(PIN_BUZZER, OUTPUT);
+
+  // Estado inicial: LED rojo encendido (sistema en espera)
+  digitalWrite(PIN_LED_ROJO, HIGH);
+  digitalWrite(PIN_LED_VERDE, LOW);
+}
+
+// -------------------- FUNCIONES DE RESPUESTA AUDITIVA --------------------
+
+// Reproduce un sonido corto indicando operación exitosa
+void emitirBipExito() {
+  tone(PIN_BUZZER, 1500, 100);  // Tono agudo
   delay(150);
-  tone(BUZZER, 2000, 150);
+  tone(PIN_BUZZER, 2000, 150);  // Tono más agudo
   delay(200);
-  noTone(BUZZER);
+  noTone(PIN_BUZZER);          // Detiene el sonido
 }
 
-void playBuzzerError() {
-  tone(BUZZER, 500, 300);
+// Reproduce un sonido indicando error o fallo
+void emitirBipError() {
+  tone(PIN_BUZZER, 500, 300);  // Tono grave
   delay(350);
-  noTone(BUZZER);
+  noTone(PIN_BUZZER);
 }
 
-// 🔹 Función para enviar UID al backend
-void sendUidToServer(String uid) {
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("⚠️ WiFi desconectado, no se puede enviar UID.");
-    playBuzzerError();
-    return;
-  }
+// -------------------- FUNCIONES DE PROCESO --------------------
 
-  HTTPClient http;
-  http.begin(serverUrl);
-  http.addHeader("Content-Type", "application/json");
-
-  String payload = "{\"uid\":\"" + uid + "\"}";
-  Serial.println("➡️ Enviando: " + payload);
-
-  int httpResponseCode = http.POST(payload);
-
-  if (httpResponseCode > 0) {
-    String response = http.getString();
-    Serial.println("✅ Respuesta: " + response);
-    playBuzzerSuccess();
-  } else {
-    Serial.printf("❌ Error HTTP (%d)\n", httpResponseCode);
-    playBuzzerError();
-  }
-
-  http.end();
-}
-
-// 🔹 Función para obtener UID sin espacios ni guiones
-String getCardUid() {
+// Extrae y devuelve el UID de la tarjeta en formato de texto hexadecimal
+String obtenerUIDTarjeta() {
   String uid = "";
-  for (byte i = 0; i < rfid.uid.size; i++) {
-    // Asegura que siempre sean 2 caracteres (ej. 0A, 1F, etc.)
-    if (rfid.uid.uidByte[i] < 0x10) uid += "0";
-    uid += String(rfid.uid.uidByte[i], HEX);
+
+  // Recorre los bytes del UID leído por el lector
+  for (byte i = 0; i < lectorRFID.uid.size; i++) {
+    // Asegura que cada byte tenga dos dígitos
+    if (lectorRFID.uid.uidByte[i] < 0x10) uid += "0";
+    uid += String(lectorRFID.uid.uidByte[i], HEX);
   }
-  uid.toUpperCase();  // Estilo estándar en hex
+
+  uid.toUpperCase();  // Convierte a mayúsculas (formato estándar)
   return uid;
 }
 
+// Envía el UID al servidor backend mediante una petición HTTP POST
+void enviarUIDAlServidor(const String& uid) {
+  // Verifica conexión WiFi antes de enviar
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Error: No hay conexión WiFi.");
+    emitirBipError();
+    return;
+  }
+
+  HTTPClient http;                      // Crea cliente HTTP
+  http.begin(URL_SERVIDOR);            // Establece la URL de destino
+  http.addHeader("Content-Type", "application/json");  // Indica que se enviará JSON
+
+  // Construye el cuerpo del mensaje en formato JSON
+  String cuerpo = "{\"uid\":\"" + uid + "\"}";
+
+  Serial.println("Enviando UID al servidor: " + cuerpo);
+
+  // Realiza la petición POST y guarda el código de respuesta
+  int codigoRespuesta = http.POST(cuerpo);
+
+  if (codigoRespuesta > 0) {
+    // Si la petición tuvo éxito, se puede leer la respuesta
+    String respuesta = http.getString();
+    Serial.println("Respuesta del servidor: " + respuesta);
+    emitirBipExito();
+  } else {
+    // Si hubo un error al enviar
+    Serial.printf("Error HTTP al enviar UID (código %d)\n", codigoRespuesta);
+    emitirBipError();
+  }
+
+  http.end();  // Libera recursos del cliente HTTP
+}
+
+// Función principal que gestiona la detección de tarjeta, lectura del UID y envío al servidor
+void procesarTarjeta() {
+  // Verifica si hay una nueva tarjeta presente
+  if (!lectorRFID.PICC_IsNewCardPresent()) return;
+
+  // Intenta leer el número de serie (UID)
+  if (!lectorRFID.PICC_ReadCardSerial()) return;
+
+  // Extrae el UID
+  String uid = obtenerUIDTarjeta();
+  Serial.println("Tarjeta detectada. UID: " + uid);
+
+  // Indicador visual de lectura
+  digitalWrite(PIN_LED_ROJO, LOW);
+  digitalWrite(PIN_LED_VERDE, HIGH);
+
+  // Envía el UID al servidor backend
+  enviarUIDAlServidor(uid);
+
+  // Restaura estado de LEDs
+  digitalWrite(PIN_LED_VERDE, LOW);
+  digitalWrite(PIN_LED_ROJO, HIGH);
+
+  // Detiene la comunicación con la tarjeta (importante)
+  lectorRFID.PICC_HaltA();
+
+  delay(1000);  // Espera un segundo para evitar lecturas repetidas
+}
+
+// -------------------- FUNCIONES PRINCIPALES --------------------
+
+// Se ejecuta una sola vez al iniciar el ESP32
+void setup() {
+  Serial.begin(115200);        // Inicia comunicación serial con el PC
+  configurarSalidas();         // Configura LEDs y buzzer
+  configurarWiFi();            // Conecta a la red WiFi
+  inicializarLectorRFID();     // Prepara el lector RFID
+
+  Serial.println("Sistema listo. Acerca una tarjeta RFID.");
+}
+
+// Se ejecuta continuamente en bucle
 void loop() {
-  if (!rfid.PICC_IsNewCardPresent()) return;
-  if (!rfid.PICC_ReadCardSerial()) return;
-
-  String uid = getCardUid();
-  Serial.println("💳 UID leído: " + uid);
-
-  digitalWrite(LED_ROJO, LOW);
-  digitalWrite(LED_VERDE, HIGH);
-
-  sendUidToServer(uid);
-
-  digitalWrite(LED_VERDE, LOW);
-  digitalWrite(LED_ROJO, HIGH);
-
-  rfid.PICC_HaltA();
-  delay(1000);  // Evita lecturas múltiples
+  procesarTarjeta();           // Gestiona la lectura de tarjetas
 }

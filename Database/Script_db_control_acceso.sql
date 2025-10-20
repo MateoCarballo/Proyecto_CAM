@@ -19,7 +19,7 @@ CREATE TABLE tarjetas (
     empleado_id INT NOT NULL,
     fecha_activacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_desactivacion TIMESTAMP NULL,
-    FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE CASCADE
+    FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE RESTRICT
 );
 
 -- Tabla para registrar todos los eventos de entrada y salida
@@ -28,7 +28,7 @@ CREATE TABLE registros (
     empleado_id INT NOT NULL,
     fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     tipo ENUM('entrada', 'salida') NOT NULL,
-    FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE CASCADE
+    FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE RESTRICT
 );
 
 -- Tabla de roles para el control de acceso en la app (RBAC)
@@ -53,3 +53,19 @@ CREATE TABLE usuarios_app (
 INSERT INTO roles (nombre_rol) VALUES 
 ('admin'),
 ('usuario');
+/*
+-- Datos de ejemplo
+INSERT INTO empleados (nombre, apellidos) VALUES
+('Lewis', 'Hamilton'),
+('Fernando', 'Alonso'),
+('Sebastian', 'Vettel'),
+('Max', 'Verstappen');
+
+INSERT INTO tarjetas (uid, empleado_id) VALUES
+('B70E5006', 1), -- Lewis Hamilton
+('B3AB430E', 2), -- Fernando Alonso
+('16194F06', 3), -- Sebastian Vettel
+('F1D21953', 4); -- Max Verstappen 
+
+*/
+
