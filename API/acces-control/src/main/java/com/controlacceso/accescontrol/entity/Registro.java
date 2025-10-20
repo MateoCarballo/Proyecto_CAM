@@ -1,6 +1,7 @@
 package com.controlacceso.accescontrol.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class Registro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "empleado_id", nullable = false)
     private Empleado empleado;
@@ -25,6 +27,7 @@ public class Registro {
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora = LocalDateTime.now();
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoRegistro tipo;

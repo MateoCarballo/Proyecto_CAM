@@ -1,6 +1,7 @@
 package com.controlacceso.accescontrol.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,9 +19,11 @@ public class Tarjeta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull
     @Column(nullable = false, unique = true, length = 64)
     private String uid;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "empleado_id", nullable = false)
     private Empleado empleado;
