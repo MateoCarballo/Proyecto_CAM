@@ -21,12 +21,13 @@ public class AccesControlController {
     }
 
     @PostMapping("/read")
-    public ResponseEntity<CardResponseDTO> readCard(@RequestBody CardRequestDTO request){
-        if(request.uid() == null || request.uid().isBlank()){
+    public ResponseEntity<CardResponseDTO> readCard(@RequestBody CardRequestDTO cardRequest){
+        if(cardRequest.uid() == null || cardRequest.uid().isBlank()){
             return ResponseEntity.badRequest().body(
                     new CardResponseDTO(null,false,"El mensaje llega sin UID",null)
             );
         }
-        return ResponseEntity.ok(accesControlService.proccesCard(request.uid()));
+        CardResponseDTO tarjetaDto = accesControlService.proccesCard(cardRequest.uid());
+        return ResponseEntity.ok(tarjetaDto);
     }
 }
