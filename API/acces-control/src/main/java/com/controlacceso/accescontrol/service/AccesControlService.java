@@ -17,16 +17,12 @@ public class AccesControlService {
     }
 
     public CardResponseDTO proccesCard(String uid) {
-        boolean authorized = validateAcces(uid);
+        boolean authorized = accesControlRepositoryImpl.(uid);
         return new CardResponseDTO(
                 uid,
                 authorized,
                 authorized ? "Acceso permitido" : "Acceso denegado",
                 LocalDateTime.now()
         );
-    }
-
-    private boolean validateAcces(String uid) {
-        return uid.equalsIgnoreCase("F6053F06");
     }
 }

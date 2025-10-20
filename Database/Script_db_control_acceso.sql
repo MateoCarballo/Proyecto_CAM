@@ -53,6 +53,7 @@ CREATE TABLE usuarios_app (
 INSERT INTO roles (nombre_rol) VALUES 
 ('admin'),
 ('usuario');
+
 /*
 -- Datos de ejemplo
 INSERT INTO empleados (nombre, apellidos) VALUES
