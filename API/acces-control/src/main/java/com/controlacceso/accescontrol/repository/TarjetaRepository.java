@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface TarjetaRepository extends JpaRepository<Tarjeta, Integer> {
     Optional<Tarjeta> findByUid(String uid);
+    Optional<Tarjeta> findByEmpleadoId(Long empleadoId);
 }
