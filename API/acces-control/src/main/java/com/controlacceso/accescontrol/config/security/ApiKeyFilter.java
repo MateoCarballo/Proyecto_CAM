@@ -14,19 +14,19 @@ import java.io.IOException;
 public class ApiKeyFilter extends OncePerRequestFilter {
 
     private static final String API_KEY_HEADER = "x-api-key";
-
+    
     @Value("${esp32.api-key}")
-    private String esp32ApiKey;
+    private String ESP32_API_KEY;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
+        String path = request.getRequestURI();
         // Solo proteger el endpoint /card/read
-        if ("/card/read".equals(request.getRequestURI())) {
+        if (path != null && path.startsWith("/card/read")) {
             String apiKey = request.getHeader(API_KEY_HEADER);
-            if (apiKey == null || !apiKey.equals(esp32ApiKey)) {
+            if (apiKey == null || !apiKey.equals(ESP32_API_KEY)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("API Key inválida o no proporcionada");
                 return;
