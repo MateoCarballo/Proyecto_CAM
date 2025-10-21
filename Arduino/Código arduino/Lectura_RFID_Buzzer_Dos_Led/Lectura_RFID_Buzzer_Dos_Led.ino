@@ -30,7 +30,7 @@ constexpr uint8_t PIN_BUZZER    = 15;
 const char* CONTRASENA_RED = "Clave1652C";
 const char* API_KEY = "12345-ESP32-SECRET;"
 */
-const char* NOMBRE_RED     = "Wifi_Pachorrudo";
+const char* NOMBRE_RED     = "Wifi-Pachorrudo";
 const char* CONTRASENA_RED = "Angel2023Martin2025";
 const char* API_KEY = "12345-ESP32-SECRET";
 
