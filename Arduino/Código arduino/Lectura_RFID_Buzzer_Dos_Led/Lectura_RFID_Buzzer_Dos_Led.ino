@@ -25,10 +25,14 @@ constexpr uint8_t PIN_LED_VERDE = 4;
 constexpr uint8_t PIN_BUZZER    = 15;
 
 // Credenciales de la red WiFi
+
 /*const char* NOMBRE_RED     = "iPhone de Mateo";
-const char* CONTRASENA_RED = "Clave1652C";*/
+const char* CONTRASENA_RED = "Clave1652C";
+const char* API_KEY = "12345-ESP32-SECRET;"
+*/
 const char* NOMBRE_RED     = "Wifi_Pachorrudo";
 const char* CONTRASENA_RED = "Angel2023Martin2025";
+const char* API_KEY = "12345-ESP32-SECRET;
 
 // Dirección del servidor backend donde se enviará el UID de la tarjeta leída
 /*const char* URL_SERVIDOR = "http://172.20.10.6:20000/card/read";*/
@@ -123,7 +127,8 @@ void enviarUIDAlServidor(const String& uid) {
 
   HTTPClient http;                      // Crea cliente HTTP
   http.begin(URL_SERVIDOR);            // Establece la URL de destino
-  http.addHeader("Content-Type", "application/json");  // Indica que se enviará JSON
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("x-api-key", API_KEY)  // Indica que se enviará JSON
 
   // Construye el cuerpo del mensaje en formato JSON
   String cuerpo = "{\"uid\":\"" + uid + "\"}";
