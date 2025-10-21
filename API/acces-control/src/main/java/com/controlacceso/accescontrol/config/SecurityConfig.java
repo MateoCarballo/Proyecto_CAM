@@ -1,4 +1,4 @@
-package com.controlacceso.accescontrol;
+package com.controlacceso.accescontrol.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
