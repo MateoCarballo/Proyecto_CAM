@@ -25,12 +25,14 @@ constexpr uint8_t PIN_LED_VERDE = 4;
 constexpr uint8_t PIN_BUZZER    = 15;
 
 // Credenciales de la red WiFi
-const char* NOMBRE_RED     = "iPhone de Mateo";
-const char* CONTRASENA_RED = "Clave1652C";
+/*const char* NOMBRE_RED     = "iPhone de Mateo";
+const char* CONTRASENA_RED = "Clave1652C";*/
+const char* NOMBRE_RED     = "Wifi_Pachorrudo";
+const char* CONTRASENA_RED = "Angel2023Martin2025";
 
 // Dirección del servidor backend donde se enviará el UID de la tarjeta leída
-const char* URL_SERVIDOR = "http://172.20.10.6:20000/card/read";
-
+/*const char* URL_SERVIDOR = "http://172.20.10.6:20000/card/read";*/
+const char* URL_SERVIDOR = "http://192.168.1.50:20000/card/read";
 // -------------------- INSTANCIAS --------------------
 
 // Crea un objeto del tipo MFRC522 para controlar el lector RFID
