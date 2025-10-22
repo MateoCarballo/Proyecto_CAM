@@ -10,6 +10,6 @@ public record RegistroCompletoHorariosDTO(
         String nombreEmpleado,
         Integer idEmpleado,
         String numeroTarjeta,
-        HashMap<LocalDate,List<TramoHorarioDTO>> registrosHorariosPorDia
+        List<RegistroHorarioDiaDTO> registrosHorariosPorDia
 ) {
 }
