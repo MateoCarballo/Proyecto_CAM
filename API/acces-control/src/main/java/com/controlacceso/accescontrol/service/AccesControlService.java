@@ -44,13 +44,15 @@ public class AccesControlService {
 
         }
         // Tiene registros? Si los tiene cual es el último ?
-        Optional<Registro> ultimoRegistroOpt = registroRepositoryImpl.findTopByEmpleadoIdOrderByFechaHoraDesc(card.getEmpleado().getId());
+        Optional<Registro> ultimoRegistroOpt = registroRepositoryImpl.findTopByEmpleadoIdOrderByFechaDescHoraDesc(card.getEmpleado().getId());
         Registro.TipoRegistro nuevoTipo;
         if (ultimoRegistroOpt.isEmpty()) {
             nuevoTipo = Registro.TipoRegistro.entrada;
         } else {
             Registro.TipoRegistro ultimoTipo = ultimoRegistroOpt.get().getTipo();
-            nuevoTipo = (ultimoTipo == Registro.TipoRegistro.entrada) ? Registro.TipoRegistro.salida : Registro.TipoRegistro.entrada;
+            nuevoTipo = (ultimoTipo == Registro.TipoRegistro.entrada)
+                    ? Registro.TipoRegistro.salida
+                    : Registro.TipoRegistro.entrada;
         }
 
         //Guardar lo contrario al ultimo registro
@@ -58,7 +60,6 @@ public class AccesControlService {
         Registro nuevoRegistro = Registro.builder()
                 .empleado(card.getEmpleado())
                 .tipo(nuevoTipo)
-                .fechaHora(LocalDateTime.now())
                 .build();
 
         registroRepositoryImpl.save(nuevoRegistro);

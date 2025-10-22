@@ -26,10 +26,12 @@ CREATE TABLE tarjetas (
 CREATE TABLE registros (
     id INT AUTO_INCREMENT PRIMARY KEY,
     empleado_id INT NOT NULL,
-    fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha DATE NOT NULL DEFAULT (CURRENT_DATE),
+    hora TIME NOT NULL DEFAULT (CURRENT_TIME),
     tipo ENUM('entrada', 'salida') NOT NULL,
     FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE RESTRICT
 );
+
 
 -- Tabla de roles para el control de acceso en la app (RBAC)
 CREATE TABLE roles (
@@ -69,4 +71,6 @@ INSERT INTO tarjetas (uid, empleado_id) VALUES
 ('F1D21953', 4); -- Max Verstappen 
 
 */
+
+SELECT * FROM registros;
 

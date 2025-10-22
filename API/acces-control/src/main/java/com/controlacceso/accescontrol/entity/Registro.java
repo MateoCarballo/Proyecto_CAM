@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "registros")
@@ -24,8 +26,11 @@ public class Registro {
     @JoinColumn(name = "empleado_id", nullable = false)
     private Empleado empleado;
 
-    @Column(name = "fecha_hora", nullable = false)
-    private LocalDateTime fechaHora = LocalDateTime.now();
+    @Column(name = "fecha", nullable = false)
+    private LocalDate fecha;
+
+    @Column(name = "hora", nullable = false)
+    private LocalTime hora;
 
     @NotNull
     @Enumerated(EnumType.STRING)
