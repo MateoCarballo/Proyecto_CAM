@@ -1,9 +1,9 @@
 package com.controlacceso.accescontrol.controller;
 
-import com.controlacceso.accescontrol.DTO.LoginRequestDTO;
-import com.controlacceso.accescontrol.DTO.LoginResponseDTO;
-import com.controlacceso.accescontrol.DTO.RegisterRequestDTO;
-import com.controlacceso.accescontrol.DTO.RegisterResponseDTO;
+import com.controlacceso.accescontrol.dto.LoginRequestDTO;
+import com.controlacceso.accescontrol.dto.LoginResponseDTO;
+import com.controlacceso.accescontrol.dto.RegisterRequestDTO;
+import com.controlacceso.accescontrol.dto.RegisterResponseDTO;
 import com.controlacceso.accescontrol.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

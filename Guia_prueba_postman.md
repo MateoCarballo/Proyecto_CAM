@@ -89,5 +89,72 @@ Respuesta esperada:
 
 ---
 
-**¡Listo!** Con esto puedes probar correctamente los endpoints de lectura de tarjetas desde Postman usando la API Key del ESP32 y el puerto 20000 en localhost.
+**Registro**
 
+URL: POST ```http://localhost:20000/auth/register```  ```  ```
+
+Body JSON:
+```json
+{
+  "empleadoId": 2,
+  "email": "usuario@empresa.com",
+  "password": "miPassword"
+}
+```
+
+Posibles respuestas:
+
+200 OK:
+```json
+{ "success": true, "mensaje": "Usuario registrado correctamente" }
+```
+
+400 Bad Request (ejemplos):
+```json
+{ "success": false, "mensaje": "Empleado no encontrado" }
+{ "success": false, "mensaje": "El empleado ya tiene un usuario registrado" }
+{ "success": false, "mensaje": "El email ya está registrado" }
+```
+
+**Login**
+
+URL: POST ```http://localhost:20000/auth/login```
+
+Body JSON:
+```json
+{
+  "email": "usuario@empresa.com",
+  "password": "miPassword"
+}
+```
+
+Respuestas:
+
+200 OK:
+```json
+{
+  "token": "eyJhbGciOi...",
+  "tipo": "Bearer",
+  "mensaje": "Login exitoso"
+}
+```
+
+400 / 401:
+```json
+{ "token": null, "mensaje": "Usuario no encontrado" }
+{ "token": null, "mensaje": "Contraseña incorrecta" }
+{ "token": null, "mensaje": "Usuario inactivo" }
+```
+
+**Obtener registros**
+
+URL: POST ```http://localhost:20000/horarios/registros```
+
+Body (JSON):
+```json
+{
+  "email": "usuario@empresa.com",
+  "fechaInicio": "2025-10-01",
+  "fechaFin": "2025-10-30"
+}
+```

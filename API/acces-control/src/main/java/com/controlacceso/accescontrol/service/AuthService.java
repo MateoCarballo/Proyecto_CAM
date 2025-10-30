@@ -1,9 +1,9 @@
 package com.controlacceso.accescontrol.service;
 
-import com.controlacceso.accescontrol.DTO.LoginRequestDTO;
-import com.controlacceso.accescontrol.DTO.LoginResponseDTO;
-import com.controlacceso.accescontrol.DTO.RegisterRequestDTO;
-import com.controlacceso.accescontrol.DTO.RegisterResponseDTO;
+import com.controlacceso.accescontrol.dto.LoginRequestDTO;
+import com.controlacceso.accescontrol.dto.LoginResponseDTO;
+import com.controlacceso.accescontrol.dto.RegisterRequestDTO;
+import com.controlacceso.accescontrol.dto.RegisterResponseDTO;
 import com.controlacceso.accescontrol.entity.Empleado;
 import com.controlacceso.accescontrol.entity.Rol;
 import com.controlacceso.accescontrol.entity.UsuarioApp;

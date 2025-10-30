@@ -1,4 +1,4 @@
-package com.controlacceso.accescontrol.DTO;
+package com.controlacceso.accescontrol.dto;
 
 import lombok.Builder;
 

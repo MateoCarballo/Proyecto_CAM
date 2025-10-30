@@ -1,11 +1,9 @@
 package com.controlacceso.accescontrol.controller;
 
-import com.controlacceso.accescontrol.DTO.RegistroCompletoHorariosDTO;
+import com.controlacceso.accescontrol.dto.RegistroCompletoHorariosDTO;
+import com.controlacceso.accescontrol.dto.RegistroFiltroDTO;
 import com.controlacceso.accescontrol.service.RegistroSalidasEntradasService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/horarios")
@@ -17,11 +15,11 @@ public class RegistroSalidasEntradasController {
         this.registroService = registroService;
     }
 
-    @GetMapping("/registros")
-    public RegistroCompletoHorariosDTO getRegistrosPorEmail(@RequestParam String email) {
-        return registroService.obtenerRegistrosPorEmail(email);
+    @PostMapping("/registros")
+    public RegistroCompletoHorariosDTO getRegistrosPorFiltro(@RequestBody RegistroFiltroDTO filtro) {
+        return registroService.obtenerRegistrosPorEmail(filtro);
     }
 
-    //TODO mejora! Usar POST para poder enviar datos de filtrado si los tenemos. Filtrar por fechas por ejemplo
-    
+    // TODO: En el futuro, usar filtro.fechaInicio y filtro.fechaFin en el servicio
+
 }

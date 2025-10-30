@@ -1,18 +1,14 @@
 package com.controlacceso.accescontrol.service;
 
-import ch.qos.logback.core.pattern.util.RegularEscapeUtil;
-import com.controlacceso.accescontrol.DTO.CardResponseDTO;
+import com.controlacceso.accescontrol.dto.CardResponseDTO;
 import com.controlacceso.accescontrol.entity.Registro;
 import com.controlacceso.accescontrol.entity.Tarjeta;
 import com.controlacceso.accescontrol.repository.RegistroRepository;
 import com.controlacceso.accescontrol.repository.TarjetaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Optional;
 
 @Service

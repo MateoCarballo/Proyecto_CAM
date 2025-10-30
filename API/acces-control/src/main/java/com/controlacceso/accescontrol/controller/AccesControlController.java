@@ -1,7 +1,7 @@
 package com.controlacceso.accescontrol.controller;
 
-import com.controlacceso.accescontrol.DTO.CardRequestDTO;
-import com.controlacceso.accescontrol.DTO.CardResponseDTO;
+import com.controlacceso.accescontrol.dto.CardRequestDTO;
+import com.controlacceso.accescontrol.dto.CardResponseDTO;
 import com.controlacceso.accescontrol.service.AccesControlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
