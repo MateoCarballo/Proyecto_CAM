@@ -77,42 +77,58 @@ public class AuthService {
     }
 
     public RegisterResponseDTO register(RegisterRequestDTO request) {
-        Optional<Empleado> empleadoOptional = empleadoRepository.findByEmail(request.email());
-        if (empleadoOptional.isEmpty()) {
-            return new RegisterResponseDTO(
-                    false,
-                    "No existe ningun empleado con este email"
-            );
-        }
-        if (usuarioAppRepository.findByEmail(request.email()).isPresent()) {
-            return new RegisterResponseDTO(
-                    false,
-                    "El email ya está registrado");
-        }
-        Empleado empleado = empleadoOptional.get();
 
-        String hashedPassword = BCrypt.hashpw(
-                request.password(),
-                BCrypt.gensalt()
-        );
+        // 1. Buscar empleado por ID
+        Optional<Empleado> empleadoOpt = empleadoRepository.findById(request.empleadoId());
+        if (empleadoOpt.isEmpty()) {
+            return RegisterResponseDTO.builder()
+                    .success(false)
+                    .mensaje("Empleado no encontrado")
+                    .build();
+        }
+
+        Empleado empleado = empleadoOpt.get();
+
+        // 2. Verificar que el empleado no tenga usuario
+        if (empleado.getUsuarioApp() != null) {
+            return RegisterResponseDTO.builder()
+                    .success(false)
+                    .mensaje("El empleado ya tiene un usuario registrado")
+                    .build();
+        }
+
+        // 3. Verificar que el email no esté registrado
+        if (usuarioAppRepository.findByEmail(request.email()).isPresent()) {
+            return RegisterResponseDTO.builder()
+                    .success(false)
+                    .mensaje("El email ya está registrado")
+                    .build();
+        }
+
+        // 4. Crear usuario con builder
+        String hashedPassword = BCrypt.hashpw(request.password(), BCrypt.gensalt());
 
         Optional<Rol> rolOpt = rolRepository.findByNombreRol("usuario");
         if (rolOpt.isEmpty()) {
-            return new RegisterResponseDTO(
-                    false,
-                    "No existe el rol usuario");
+            return RegisterResponseDTO.builder()
+                    .success(false)
+                    .mensaje("No existe el rol 'usuario'")
+                    .build();
         }
 
-        // Crear nuevo usuario
-        UsuarioApp nuevoUsuario = new UsuarioApp();
-        nuevoUsuario.setEmail(request.email());
-        nuevoUsuario.setHashContrasena(hashedPassword);
-        nuevoUsuario.setEmpleado(empleado);  // Debes asegurarte de enviar el empleado o su ID
-        nuevoUsuario.setRol(rolOpt.get());            // O asignar un rol por defecto si no lo envías
+        UsuarioApp nuevoUsuario = UsuarioApp.builder()
+                .empleado(empleado)
+                .email(request.email())
+                .hashContrasena(hashedPassword)
+                .rol(rolOpt.get())
+                .build();
 
         usuarioAppRepository.save(nuevoUsuario);
 
-        return new RegisterResponseDTO(true, "Usuario registrado correctamente");
-
+        return RegisterResponseDTO.builder()
+                .success(true)
+                .mensaje("Usuario registrado correctamente")
+                .build();
     }
+
 }

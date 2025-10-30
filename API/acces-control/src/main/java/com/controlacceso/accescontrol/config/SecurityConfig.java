@@ -22,7 +22,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // desactiva CSRF
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/card/read").authenticated() // solo /card/read requiere API key
-                        .anyRequest().permitAll() // otros endpoints abiertos
+                        .anyRequest()
+                        .permitAll() // otros endpoints abiertos
                 )
                 .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class);
 

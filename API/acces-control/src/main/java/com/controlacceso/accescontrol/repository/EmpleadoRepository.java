@@ -9,5 +9,4 @@ import java.util.Optional;
 
 @Repository
 public interface EmpleadoRepository extends JpaRepository<Empleado,Integer> {
-    Optional<Empleado> findByEmail(String email);
 }

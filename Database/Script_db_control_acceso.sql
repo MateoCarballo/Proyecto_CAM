@@ -51,12 +51,27 @@ CREATE TABLE usuarios_app (
     FOREIGN KEY (rol_id) REFERENCES roles(id)
 );
 
+DELIMITER $$
+
+CREATE TRIGGER registros_before_insert
+BEFORE INSERT ON registros
+FOR EACH ROW
+BEGIN
+    IF NEW.fecha IS NULL THEN
+        SET NEW.fecha = CURRENT_DATE;
+    END IF;
+    IF NEW.hora IS NULL THEN
+        SET NEW.hora = CURRENT_TIME;
+    END IF;
+END $$
+
+DELIMITER ;
+
 -- Insertar roles básicos del sistema
 INSERT INTO roles (nombre_rol) VALUES 
 ('admin'),
 ('usuario');
 
-/*
 -- Datos de ejemplo
 INSERT INTO empleados (nombre, apellidos) VALUES
 ('Lewis', 'Hamilton'),
@@ -69,8 +84,4 @@ INSERT INTO tarjetas (uid, empleado_id) VALUES
 ('B3AB430E', 2), -- Fernando Alonso
 ('16194F06', 3), -- Sebastian Vettel
 ('F1D21953', 4); -- Max Verstappen 
-
-*/
-
-SELECT * FROM registros;
 

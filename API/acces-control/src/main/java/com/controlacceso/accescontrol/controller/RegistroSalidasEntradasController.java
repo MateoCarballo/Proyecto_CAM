@@ -21,6 +21,7 @@ public class RegistroSalidasEntradasController {
     public RegistroCompletoHorariosDTO getRegistrosPorEmail(@RequestParam String email) {
         return registroService.obtenerRegistrosPorEmail(email);
     }
+
     //TODO mejora! Usar POST para poder enviar datos de filtrado si los tenemos. Filtrar por fechas por ejemplo
     
 }

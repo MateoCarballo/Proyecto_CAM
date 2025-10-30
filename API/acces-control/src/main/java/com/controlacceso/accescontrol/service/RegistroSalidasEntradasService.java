@@ -6,9 +6,11 @@ import com.controlacceso.accescontrol.DTO.TramoHorarioDTO;
 import com.controlacceso.accescontrol.entity.Empleado;
 import com.controlacceso.accescontrol.entity.Registro;
 import com.controlacceso.accescontrol.entity.Tarjeta;
+import com.controlacceso.accescontrol.entity.UsuarioApp;
 import com.controlacceso.accescontrol.repository.EmpleadoRepository;
 import com.controlacceso.accescontrol.repository.RegistroRepository;
 import com.controlacceso.accescontrol.repository.TarjetaRepository;
+import com.controlacceso.accescontrol.repository.UsuarioAppRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,26 +22,29 @@ public class RegistroSalidasEntradasService {
     private final EmpleadoRepository empleadoRepository;
     private final TarjetaRepository tarjetaRepository;
     private final RegistroRepository registroRepository;
+    private final UsuarioAppRepository usuarioAppRepository;
 
     public RegistroSalidasEntradasService(EmpleadoRepository empleadoRepository,
                                           TarjetaRepository tarjetaRepository,
-                                          RegistroRepository registroRepository) {
+                                          RegistroRepository registroRepository, UsuarioAppRepository usuarioAppRepository) {
         this.empleadoRepository = empleadoRepository;
         this.tarjetaRepository = tarjetaRepository;
         this.registroRepository = registroRepository;
+        this.usuarioAppRepository = usuarioAppRepository;
     }
 
     public RegistroCompletoHorariosDTO obtenerRegistrosPorEmail(String email) {
-        Optional<Empleado> empleadoOpt = empleadoRepository.findByEmail(email);
+        Optional<UsuarioApp> usuarioAppOptional = usuarioAppRepository.findByEmail(email);
+        //Optional<Empleado> empleadoOpt = empleadoRepository.findByEmail(email);
         Empleado empleado;
-        if (empleadoOpt.isEmpty()) {
+        if (usuarioAppOptional.isEmpty()) {
             return RegistroCompletoHorariosDTO.builder()
                     .idEmpleado(-1)
                     .nombreEmpleado("No existe")
                     .numeroTarjeta("No existe")
                     .build();
         }
-        empleado = empleadoOpt.get();
+        empleado = usuarioAppOptional.get().getEmpleado();
 
         List<Tarjeta> tarjetas = tarjetaRepository.findByEmpleadoId(empleado.getId());
         String numeroTarjeta = tarjetas.isEmpty()
