@@ -1,14 +1,23 @@
 USE ControlAccesoPYME;
-
+-- Esto eliminará TODOS los registros actuales.
+-- También reiniciará los contadores AUTO_INCREMENT.
+-- No se debe usar en entornos de producción.
 -- ========================
 -- LIMPIAR DATOS EXISTENTES
 -- ========================
+-- MySQL no permite truncar tablas si están relacionadas por claves foráneas.
+-- Este comando desactiva temporalmente esa validación para evitar errores.
 SET FOREIGN_KEY_CHECKS = 0;
+-- El comando TRUNCATE elimina todos los registros y reinicia el contador AUTO_INCREMENT.
+-- Es mucho más rápido que DELETE y deja las tablas completamente vacías.
 TRUNCATE TABLE usuarios_app;
 TRUNCATE TABLE registros;
 TRUNCATE TABLE tarjetas;
 TRUNCATE TABLE empleados;
 TRUNCATE TABLE roles;
+
+-- Una vez que hemos vaciado las tablas, volvemos a activar la verificación
+-- de claves foráneas para mantener la integridad referencial de la base de datos.
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =====================
