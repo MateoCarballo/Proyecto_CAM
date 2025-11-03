@@ -17,5 +17,6 @@ public class ControlDeAccesoPymeApplication {
 	//Si no estamos registrados introducir el numero de empleado y la contraseña dos veces. Y desde ahi hacer el registro si el numero de usuario existe y no esta registrado.
 	// Si estamos registrados tendremos nuestro email y lo buscará junto con nuestra clave para probar acceso.
 	// Al entrar si este tiene un rol de "usuario" podrá ver todas sus entradas y salidas .Si tiene un rol de "administrador" entonces podrá ver la de todos.
-
+	// En necesario la paginación, como la aplico? Desde la app o desde aquí ?
+	//Está bien que siempre devuleva lo mismo, una lista de empleados, que si es rol admin  tendra varios objetos en la lista y si es rol usuario solo tendrá uno ? 
 }
