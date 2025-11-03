@@ -1,6 +1,5 @@
 package com.controlacceso.accescontrol.service;
 
-import com.controlacceso.accescontrol.config.security.JwtTokenProvider; // ✅ añadido
 import com.controlacceso.accescontrol.dto.*;
 import com.controlacceso.accescontrol.entity.*;
 import com.controlacceso.accescontrol.repository.*;
@@ -17,88 +16,81 @@ public class RegistroSalidasEntradasService {
     private final TarjetaRepository tarjetaRepository;
     private final RegistroRepository registroRepository;
     private final UsuarioAppRepository usuarioAppRepository;
-    private final JwtTokenProvider jwtTokenProvider; // ✅ nuevo campo
 
     public RegistroSalidasEntradasService(
             TarjetaRepository tarjetaRepository,
             RegistroRepository registroRepository,
-            UsuarioAppRepository usuarioAppRepository,
-            JwtTokenProvider jwtTokenProvider // ✅ lo inyectamos
+            UsuarioAppRepository usuarioAppRepository
     ) {
         this.tarjetaRepository = tarjetaRepository;
         this.registroRepository = registroRepository;
         this.usuarioAppRepository = usuarioAppRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public RegistroCompletoHorariosDTO obtenerRegistrosPorEmail(RegistroFiltroDTO filtro) {
-        // ✅ Obtenemos email autenticado desde SecurityContext
+    public RegistrosHorariosResponseDTO obtenerRegistrosPorFiltro() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String emailAutenticado = auth.getName();
 
-        // ✅ Recuperamos el usuario autenticado
-        Optional<UsuarioApp> usuarioAppOptional = usuarioAppRepository.findByEmail(emailAutenticado);
-        if (usuarioAppOptional.isEmpty()) {
-            return RegistroCompletoHorariosDTO.builder()
-                    .idEmpleado(-1)
-                    .nombreEmpleado("No existe")
-                    .numeroTarjeta("No existe")
-                    .build();
+        Optional<UsuarioApp> usuarioOpt = usuarioAppRepository.findByEmail(emailAutenticado);
+        if (usuarioOpt.isEmpty()) {
+            return new RegistrosHorariosResponseDTO(
+                    "desconocido",
+                    Collections.emptyList()
+            );
         }
 
-        UsuarioApp usuario = usuarioAppOptional.get();
-        Empleado empleado = usuario.getEmpleado();
+        UsuarioApp usuario = usuarioOpt.get();
+        String rol = usuario.getRol().getNombreRol();
 
-        // ✅ Si es ADMIN → ver todos los registros
-        if (usuario.getRol().getNombreRol().equalsIgnoreCase("admin")) {
-            return obtenerRegistrosDeTodosLosEmpleados();
+        List<EmpleadoRegistrosDTO> empleadosDTO;
+        if (rol.equalsIgnoreCase("admin")) {
+            empleadosDTO = obtenerRegistrosDeTodosLosEmpleados();
+        } else {
+            empleadosDTO = Collections.singletonList(obtenerRegistrosDeEmpleado(usuario.getEmpleado()));
         }
 
-        // ✅ Si es USUARIO → ver solo los suyos
-        return obtenerRegistrosDeEmpleado(empleado);
+        return new RegistrosHorariosResponseDTO(rol, empleadosDTO);
     }
 
-    // ============================================
-    // 🔹 Obtener registros de un empleado concreto
-    // ============================================
-    private RegistroCompletoHorariosDTO obtenerRegistrosDeEmpleado(Empleado empleado) {
+    // -------------------
+    // Registros de un empleado
+    // -------------------
+    private EmpleadoRegistrosDTO obtenerRegistrosDeEmpleado(Empleado empleado) {
         List<Tarjeta> tarjetas = tarjetaRepository.findByEmpleadoId(empleado.getId());
-        String numeroTarjeta = tarjetas.isEmpty() ? "Sin tarjeta" : tarjetas.getFirst().getUid();
+        String numeroTarjeta = tarjetas.isEmpty() ? "Sin tarjeta" : tarjetas.get(0).getUid();
 
         List<Registro> registros = registroRepository.findAllByEmpleadoIdOrderByFechaDescHoraDesc(empleado.getId());
 
         Map<LocalDate, List<Registro>> registrosPorDia = agruparRegistrosPorDia(registros);
-
         List<RegistroHorarioDiaDTO> registrosPorDiaDTO = convertirARegistroHorarioDiaDTO(registrosPorDia);
 
-        return RegistroCompletoHorariosDTO.builder()
-                .nombreEmpleado(empleado.getNombre() + " " + empleado.getApellidos())
-                .idEmpleado(empleado.getId())
-                .numeroTarjeta(numeroTarjeta)
-                .registrosHorariosPorDia(registrosPorDiaDTO)
-                .build();
+        return new EmpleadoRegistrosDTO(
+                empleado.getId(),
+                empleado.getNombre() + " " + empleado.getApellidos(),
+                numeroTarjeta,
+                registrosPorDiaDTO
+        );
     }
 
-    // ============================================
-    // 🔹 Obtener registros de TODOS los empleados
-    // ============================================
-    private RegistroCompletoHorariosDTO obtenerRegistrosDeTodosLosEmpleados() {
-        List<Registro> registros = registroRepository.findAllByOrderByFechaDescHoraDesc();
+    // -------------------
+    // Registros de todos los empleados (admin)
+    // -------------------
+    private List<EmpleadoRegistrosDTO> obtenerRegistrosDeTodosLosEmpleados() {
+        List<UsuarioApp> usuarios = usuarioAppRepository.findAll();
+        List<EmpleadoRegistrosDTO> empleadosDTO = new ArrayList<>();
 
-        Map<LocalDate, List<Registro>> registrosPorDia = agruparRegistrosPorDia(registros);
-        List<RegistroHorarioDiaDTO> registrosPorDiaDTO = convertirARegistroHorarioDiaDTO(registrosPorDia);
+        for (UsuarioApp usuario : usuarios) {
+            empleadosDTO.add(obtenerRegistrosDeEmpleado(usuario.getEmpleado()));
+        }
 
-        return RegistroCompletoHorariosDTO.builder()
-                .nombreEmpleado("Administrador - Todos los empleados")
-                .idEmpleado(0)
-                .numeroTarjeta("N/A")
-                .registrosHorariosPorDia(registrosPorDiaDTO)
-                .build();
+        // Ordenar por idEmpleado
+        empleadosDTO.sort(Comparator.comparingInt(EmpleadoRegistrosDTO::idEmpleado));
+        return empleadosDTO;
     }
 
-    // ============================================
-    // 🔹 Utilidades de agrupación y conversión
-    // ============================================
+    // -------------------
+    // Utilidades
+    // -------------------
     private Map<LocalDate, List<Registro>> agruparRegistrosPorDia(List<Registro> registros) {
         Map<LocalDate, List<Registro>> registrosPorDia = new TreeMap<>();
         for (Registro r : registros) {
@@ -108,19 +100,19 @@ public class RegistroSalidasEntradasService {
     }
 
     private List<RegistroHorarioDiaDTO> convertirARegistroHorarioDiaDTO(Map<LocalDate, List<Registro>> registrosPorDia) {
-        List<RegistroHorarioDiaDTO> registrosPorDiaDTO = new ArrayList<>();
+        List<RegistroHorarioDiaDTO> listaDTO = new ArrayList<>();
         for (Map.Entry<LocalDate, List<Registro>> entry : registrosPorDia.entrySet()) {
             LocalDate fecha = entry.getKey();
             List<Registro> registrosDelDia = entry.getValue();
             registrosDelDia.sort(Comparator.comparing(Registro::getHora));
 
-            List<TramoHorarioDTO> tramos = getTramoHorarioDTOS(registrosDelDia);
-            registrosPorDiaDTO.add(new RegistroHorarioDiaDTO(fecha.toString(), tramos));
+            List<TramoHorarioDTO> tramos = convertirATramos(registrosDelDia);
+            listaDTO.add(new RegistroHorarioDiaDTO(fecha.toString(), tramos));
         }
-        return registrosPorDiaDTO;
+        return listaDTO;
     }
 
-    private static List<TramoHorarioDTO> getTramoHorarioDTOS(List<Registro> registrosDelDia) {
+    private List<TramoHorarioDTO> convertirATramos(List<Registro> registrosDelDia) {
         List<TramoHorarioDTO> tramos = new ArrayList<>();
         String horaEntrada = null;
 
@@ -135,10 +127,10 @@ public class RegistroSalidasEntradasService {
             }
         }
 
-        // Si el día termina con una entrada sin salida
         if (horaEntrada != null) {
             tramos.add(new TramoHorarioDTO(horaEntrada, null));
         }
+
         return tramos;
     }
 }
