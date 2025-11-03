@@ -3,7 +3,9 @@ package com.controlacceso.accescontrol;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(
+		scanBasePackages = "com.controlacceso.accescontrol"
+)
 public class ControlDeAccesoPymeApplication {
 
 	public static void main(String[] args) {
