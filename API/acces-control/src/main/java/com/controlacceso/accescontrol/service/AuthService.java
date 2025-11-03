@@ -11,16 +11,20 @@ import com.controlacceso.accescontrol.repository.EmpleadoRepository;
 import com.controlacceso.accescontrol.repository.RolRepository;
 import com.controlacceso.accescontrol.repository.UsuarioAppRepository;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class AuthService {
+
     private final UsuarioAppRepository usuarioAppRepository;
     private final EmpleadoRepository empleadoRepository;
     private final RolRepository rolRepository;
@@ -31,16 +35,21 @@ public class AuthService {
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
 
-    public AuthService(UsuarioAppRepository usuarioAppRepository, EmpleadoRepository empleadoRepository, RolRepository rolRepository) {
+    public AuthService(UsuarioAppRepository usuarioAppRepository,
+                       EmpleadoRepository empleadoRepository,
+                       RolRepository rolRepository) {
         this.usuarioAppRepository = usuarioAppRepository;
         this.empleadoRepository = empleadoRepository;
         this.rolRepository = rolRepository;
     }
 
+    // ========================================
+    // ============= LOGIN ====================
+    // ========================================
     public LoginResponseDTO login(LoginRequestDTO request) {
-        Optional<UsuarioApp> user = usuarioAppRepository.findByEmail(request.email());
+        Optional<UsuarioApp> userOpt = usuarioAppRepository.findByEmail(request.email());
 
-        if (user.isEmpty()) {
+        if (userOpt.isEmpty()) {
             return LoginResponseDTO.builder()
                     .token(null)
                     .tipo(null)
@@ -48,7 +57,8 @@ public class AuthService {
                     .build();
         }
 
-        UsuarioApp usuarioApp = user.get();
+        UsuarioApp usuarioApp = userOpt.get();
+
         if (!usuarioApp.getEmpleado().isActivo()) {
             return LoginResponseDTO.builder()
                     .token(null)
@@ -64,18 +74,28 @@ public class AuthService {
                     .mensaje("Contraseña incorrecta")
                     .build();
         }
+
+        // Generar clave secreta y token JWT (versión 0.11.5)
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+
         String token = Jwts.builder()
-                .setSubject(usuarioApp.getEmail())                    // Identificador único (email)
-                .claim("rol", usuarioApp.getRol().getNombreRol())     // Rol del usuario
-                .setIssuedAt(new Date())                           // Fecha de emisión
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs)) // Expiración
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)     // Firma con clave secreta
+                .setSubject(usuarioApp.getEmail())
+                .claim("rol", usuarioApp.getRol().getNombreRol())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key) // no se pasa el algoritmo, se deduce de la clave
                 .compact();
 
-        return new LoginResponseDTO(token, "Bearer", "Login exitoso");
-
+        return LoginResponseDTO.builder()
+                .token(token)
+                .tipo("Bearer")
+                .mensaje("Login exitoso")
+                .build();
     }
 
+    // ========================================
+    // ============ REGISTER ==================
+    // ========================================
     public RegisterResponseDTO register(RegisterRequestDTO request) {
 
         // 1. Buscar empleado por ID
@@ -121,6 +141,7 @@ public class AuthService {
                 .email(request.email())
                 .hashContrasena(hashedPassword)
                 .rol(rolOpt.get())
+                .fechaCreacion(LocalDateTime.now())
                 .build();
 
         usuarioAppRepository.save(nuevoUsuario);
@@ -130,5 +151,4 @@ public class AuthService {
                 .mensaje("Usuario registrado correctamente")
                 .build();
     }
-
 }

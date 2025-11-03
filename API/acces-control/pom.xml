@@ -5,15 +5,14 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- Proyecto basado en Spring Boot -->
+	<!-- Parent Spring Boot -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.6</version> <!-- Incluye Spring Framework 6.2.10 (seguro frente a CVE-2025-41242) -->
+		<version>3.5.6</version>
 		<relativePath/>
 	</parent>
 
-	<!-- Identificación del proyecto -->
 	<groupId>com.controlacceso</groupId>
 	<artifactId>acces-control</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -26,66 +25,77 @@
 
 	<dependencies>
 
-		<!-- Spring Data JPA: acceso a base de datos usando entidades -->
+		<!-- Spring Data JPA -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- Spring Web: para exponer endpoints REST -->
+		<!-- Spring Web (REST) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!-- Conector MySQL: driver JDBC para conectar a la base de datos -->
+		<!-- MySQL driver -->
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Lombok: simplifica getters, setters, constructores, builders -->
+		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Dependencias para test unitarios (JUnit + Spring Boot Test) -->
+		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Validación: anotaciones como @NotBlank, @Email, @Valid, etc. -->
+		<!-- Validation API -->
 		<dependency>
 			<groupId>jakarta.validation</groupId>
 			<artifactId>jakarta.validation-api</artifactId>
 		</dependency>
 
-		<!-- Spring Security: autenticación y autorización -->
+		<!-- Spring Security -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
-		<!-- Hibernate Validator: implementación de jakarta.validation -->
+		<!-- Hibernate Validator (implementación) -->
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
 
-		<!-- JWT: para generar y validar tokens de autenticación -->
+		<!-- JJWT (modular, versión moderna) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt</artifactId>
-			<version>0.9.1</version>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
 		</dependency>
 
-		<!-- LOGGING (versión parcheada) -->
-		<!-- Añadimos explícitamente las versiones seguras para evitar CVE-2025-11226 -->
+		<!-- Logback: fijamos versión segura explícita -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
@@ -102,25 +112,23 @@
 	<build>
 		<plugins>
 
-			<!-- Plugin del compilador Java -->
+			<!-- Maven Compiler Plugin: usar release 21 para congruencia con JDK 21 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
 				<configuration>
+					<release>21</release>
 					<annotationProcessorPaths>
-						<!-- Necesario para procesar las anotaciones de Lombok -->
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</path>
 					</annotationProcessorPaths>
-					<!-- Aunque defines Java 21, mantenemos compatibilidad con bytecode 8 -->
-					<source>8</source>
-					<target>8</target>
 				</configuration>
 			</plugin>
 
-			<!-- Plugin para empaquetar el proyecto como aplicación Spring Boot -->
+			<!-- Spring Boot plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
