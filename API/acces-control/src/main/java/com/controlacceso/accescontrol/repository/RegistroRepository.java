@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface RegistroRepository extends JpaRepository<Registro,Integer> {
     Optional<Registro> findTopByEmpleadoIdOrderByFechaDescHoraDesc(Integer empleadoId);
     List<Registro> findAllByEmpleadoIdOrderByFechaDescHoraDesc(Integer empleadoId);
+    List<Registro> findAllByOrderByFechaDescHoraDesc();
 }

@@ -2,33 +2,38 @@ package com.controlacceso.accescontrol.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
-    private String secretKey; // clave privada para firmar los tokens
+    private String secretKey;
 
     @Value("${jwt.expiration-ms}")
-    private long expirationMs; // duración del token en milisegundos
+    private long expirationMs;
 
     /**
-     * Genera un token JWT usando el email del usuario como "subject"
+     * ✅ Genera un token JWT con email y rol del usuario
      */
-    public String generarToken(String email) {
+    public String generarToken(String email, String rol) {
         Date ahora = new Date();
         Date expiracion = new Date(ahora.getTime() + expirationMs);
 
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
         return Jwts.builder()
-                .setSubject(email)                   // información principal del usuario
-                .setIssuedAt(ahora)                  // fecha de creación
-                .setExpiration(expiracion)           // fecha de expiración
-                .signWith(SignatureAlgorithm.HS512, secretKey) // firma del token
+                .setSubject(email)
+                .claim("rol", rol) // <-- añadimos el rol
+                .setIssuedAt(ahora)
+                .setExpiration(expiracion)
+                .signWith(key)
                 .compact();
     }
 
@@ -36,8 +41,9 @@ public class JwtTokenProvider {
      * Obtiene el email (subject) desde un token JWT válido.
      */
     public String obtenerEmailDeToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
 
@@ -45,11 +51,27 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Verifica si un token es válido (firma + fecha de expiración).
+     * ✅ Obtiene el rol del token JWT.
+     */
+    public String obtenerRolDeToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("rol", String.class);
+    }
+
+    /**
+     * ✅ Valida si el token es correcto y no ha expirado.
      */
     public boolean validarToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;

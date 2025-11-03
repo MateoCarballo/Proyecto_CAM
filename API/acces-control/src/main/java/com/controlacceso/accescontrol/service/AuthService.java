@@ -1,5 +1,6 @@
 package com.controlacceso.accescontrol.service;
 
+import com.controlacceso.accescontrol.config.security.JwtTokenProvider; // ✅ IMPORTANTE: añadimos el uso centralizado del provider
 import com.controlacceso.accescontrol.dto.LoginRequestDTO;
 import com.controlacceso.accescontrol.dto.LoginResponseDTO;
 import com.controlacceso.accescontrol.dto.RegisterRequestDTO;
@@ -10,16 +11,10 @@ import com.controlacceso.accescontrol.entity.UsuarioApp;
 import com.controlacceso.accescontrol.repository.EmpleadoRepository;
 import com.controlacceso.accescontrol.repository.RolRepository;
 import com.controlacceso.accescontrol.repository.UsuarioAppRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -28,19 +23,16 @@ public class AuthService {
     private final UsuarioAppRepository usuarioAppRepository;
     private final EmpleadoRepository empleadoRepository;
     private final RolRepository rolRepository;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${jwt.expiration-ms}")
-    private long jwtExpirationMs;
+    private final JwtTokenProvider jwtTokenProvider; // ✅ inyección del provider centralizado
 
     public AuthService(UsuarioAppRepository usuarioAppRepository,
                        EmpleadoRepository empleadoRepository,
-                       RolRepository rolRepository) {
+                       RolRepository rolRepository,
+                       JwtTokenProvider jwtTokenProvider) { // ✅ añadido en el constructor
         this.usuarioAppRepository = usuarioAppRepository;
         this.empleadoRepository = empleadoRepository;
         this.rolRepository = rolRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     // ========================================
@@ -75,16 +67,11 @@ public class AuthService {
                     .build();
         }
 
-        // Generar clave secreta y token JWT (versión 0.11.5)
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
-        String token = Jwts.builder()
-                .setSubject(usuarioApp.getEmail())
-                .claim("rol", usuarioApp.getRol().getNombreRol())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key) // no se pasa el algoritmo, se deduce de la clave
-                .compact();
+        // ✅ Ahora usamos JwtTokenProvider para generar el token correctamente
+        String token = jwtTokenProvider.generarToken(
+                usuarioApp.getEmail(),
+                usuarioApp.getRol().getNombreRol()
+        );
 
         return LoginResponseDTO.builder()
                 .token(token)
@@ -125,7 +112,7 @@ public class AuthService {
                     .build();
         }
 
-        // 4. Crear usuario con builder
+        // 4. Crear usuario
         String hashedPassword = BCrypt.hashpw(request.password(), BCrypt.gensalt());
 
         Optional<Rol> rolOpt = rolRepository.findByNombreRol("usuario");
