@@ -70,17 +70,6 @@
 </div>
 
 <div class="card">
-<h2>5️⃣ Buenas prácticas</h2>
-<ul>
-<li>Mantener repositorios separados por módulo cuando el proyecto crece (monorepo vs multirepo)</li>
-<li>Documentar endpoints y firmware en Markdown</li>
-<li>Usar DTOs para separar entidad y representación de datos</li>
-<li>Versionar API y firmware mediante tags</li>
-<li>Probar primero en entorno local antes de producción</li>
-</ul>
-</div>
-
-<div class="card">
 <h2>6️⃣ Estructura recomendada</h2>
 <pre>
 ProyectoCAM/
@@ -92,8 +81,5 @@ ProyectoCAM/
 </pre>
 </div>
 
-<p>Este README centralizado sirve como guía inicial y punto de acceso a toda la documentación de los diferentes módulos.</p>
-
 </body>
 </html>
-# Proyecto_CAM
