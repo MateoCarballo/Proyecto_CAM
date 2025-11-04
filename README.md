@@ -50,7 +50,7 @@
 <h2>3️⃣ App Android</h2>
 <p>Aplicación móvil para que los administradores y usuarios puedan consultar los registros horarios y gestionar empleados.</p>
 <ul>
-<li><a href="./android-app">Carpeta Android App</a></li>
+<li><a href="./mobile-android">Carpeta Android App</a></li>
 <li>Java/Kotlin, Retrofit para consumir la API</li>
 <li>Interfaz adaptativa según rol (Admin ve todos los registros, Usuario solo los suyos)</li>
 <li>Posibilidad de filtrado por empleado y rango de fechas</li>
