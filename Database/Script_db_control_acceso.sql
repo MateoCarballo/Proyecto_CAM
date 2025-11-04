@@ -1,16 +1,17 @@
 -- =========================================
--- SCRIPT COMPLETO DE PRUEBA CONTROL DE ACCESO PYME
--- Incluye roles, empleados, usuarios y registros
--- Ejecutable desde cero en cualquier PC
+-- SCRIPT COMPLETO PARA PRUEBAS
+-- Incluye: esquema, roles, empleados, tarjetas,
+-- usuarios_app usando los hashes reales que ya tenías,
+-- registros de prueba (30 y 31 de octubre).
 -- =========================================
 
--- 0️⃣ Limpiar y crear base de datos
+-- 0) Borrar / crear base de datos
 DROP DATABASE IF EXISTS ControlAccesoPYME;
 CREATE DATABASE ControlAccesoPYME;
 USE ControlAccesoPYME;
 
 -- =========================================
--- 1️⃣ Tablas
+-- 1) TABLAS
 -- =========================================
 
 -- Tabla empleados
@@ -42,7 +43,7 @@ CREATE TABLE registros (
     FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE RESTRICT
 );
 
--- Trigger para asegurar fecha/hora al insertar registros
+-- Trigger para asegurar fecha/hora si no se proporcionan
 DELIMITER $$
 CREATE TRIGGER registros_before_insert
 BEFORE INSERT ON registros
@@ -55,7 +56,6 @@ BEGIN
         SET NEW.hora = CURRENT_TIME;
     END IF;
 END $$
-
 DELIMITER ;
 
 -- Tabla roles (RBAC)
@@ -77,24 +77,24 @@ CREATE TABLE usuarios_app (
 );
 
 -- =========================================
--- 2️⃣ Insertar roles
+-- 2) ROLES
 -- =========================================
 INSERT INTO roles (nombre_rol) VALUES 
 ('admin'),
 ('usuario');
 
 -- =========================================
--- 3️⃣ Insertar empleados
+-- 3) EMPLEADOS (ejemplos)
 -- =========================================
 INSERT INTO empleados (nombre, apellidos) VALUES
-('Lewis', 'Hamilton'),
-('Fernando', 'Alonso'),
-('Sebastian', 'Vettel'),
-('Max', 'Verstappen'),
-('Admin', 'Root'); -- empleado de prueba admin
+('Lewis', 'Hamilton'),        -- id = 1
+('Fernando', 'Alonso'),       -- id = 2
+('Sebastian', 'Vettel'),      -- id = 3
+('Max', 'Verstappen'),        -- id = 4
+('Admin', 'Root');            -- id = 5  (empleado para cuenta admin si lo quieres)
 
 -- =========================================
--- 4️⃣ Insertar tarjetas RFID
+-- 4) TARJETAS (ejemplo)
 -- =========================================
 INSERT INTO tarjetas (uid, empleado_id) VALUES
 ('B70E5006', 1), -- Lewis Hamilton
@@ -104,22 +104,17 @@ INSERT INTO tarjetas (uid, empleado_id) VALUES
 ('ADMIN01', 5);  -- Admin Root
 
 -- =========================================
--- 5️⃣ Insertar usuarios_app
--- Para simplificar, usar contraseñas hasheadas de ejemplo
--- bcrypt hash de "123456": $2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+-- 5) usuarios_app (USANDO LOS HASHES REALES)
+-- Ejemplo con los datos usados para probar desde postman. La idea es que se creen desde la app
+-- INSERT INTO usuarios_app (empleado_id, email, hash_contrasena, rol_id) VALUES
+-- (1, 'lewis.hamilton@mercedes.com',  '$2a$10$lPwMBN4Hscs0pqVZmONZ0uwWWgM8O9djWYKy2d2HxjzcjOn35hF3G', 2),
+-- (2, 'fernando.alonso@astonmartin.com','$2a$10$o1ZJO/5meZZ/sU5eUow1hecU5LAAdkQeFxedodbrOi5Gf2Whk9z6C', 2),
+-- (3, 'admin@example.com',              '$2a$10$t7NnaslKYiFuBa6tH2SybOkqJ/S1u8My6peNofQXsWDgBfmaReDBS', 1);
 -- =========================================
-/* Por ahora todos se tienen que registrar como usuarios y luego le cambio a mano el rol de usuario a admin
-INSERT INTO usuarios_app (empleado_id, email, hash_contrasena, rol_id) VALUES
-(1, 'lewis.hamilton@mercedes.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 2),
-(2, 'fernando.alonso@astonmartin.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 2),
-(3, 'sebastian.vettel@ferrari.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 2),
-(4, 'max.verstappen@redbull.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 2),
-(5, 'admin@example.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 1); -- Admin
-*/
 
 -- =========================================
--- 6️⃣ Insertar registros de prueba
--- Para los días 30 y 31 de octubre para todos los empleados
+-- 6) REGISTROS DE PRUEBA (30 y 31 octubre)
+--    Datos generados para los empleados 1..4 (y 5 parcialmente)
 -- =========================================
 
 -- Día 30 de octubre
@@ -173,10 +168,25 @@ INSERT INTO registros (empleado_id, fecha, hora, tipo) VALUES
 (5, '2025-10-31', '12:00:00', 'salida');
 
 -- =========================================
--- 7️⃣ Consultas de prueba
+-- 7) CONSULTAS útiles de comprobación
 -- =========================================
 SELECT * FROM empleados;
 SELECT * FROM tarjetas;
 SELECT * FROM roles;
 SELECT * FROM usuarios_app;
 SELECT * FROM registros;
+
+-- =========================================
+-- NOTAS FINALES
+-- =========================================
+-- 1) Si te aparece un error de clave foránea al insertar usuarios_app porque el empleado_id
+--    no existe o ya está ocupado, ajusta el empleado_id al correcto.
+-- 2) Si prefieres que admin@example.com esté enlazado al empleado con id = 5,
+--    modifica la línea del INSERT de usuarios_app correspondiente:
+--      -> cambiar (3, 'admin@example.com', '...hash...', 1)
+--         por  (5, 'admin@example.com', '...hash...', 1)
+-- 3) Si quieres que todos los usuarios tengan fecha_creacion explícita, puedes añadirla en el INSERT.
+-- 4) Los hashes usados son exactamente los que me proporcionaste — así tus credenciales
+--    existentes seguirán funcionando con el backend sin necesidad de re-hashear.
+
+-- FIN DEL SCRIPT
