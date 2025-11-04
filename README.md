@@ -2,28 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Control de Acceso - Proyecto CAM</title>
-<style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f7f8fa;
-    padding: 2rem;
-  }
-  h1, h2, h3 {
-    font-weight: 600;
-    color: #111;
-  }
-  h1 { border-bottom: 3px solid #007AFF; padding-bottom: 0.3rem; }
-  h2 { margin-top: 2rem; color: #007AFF; }
-  code, pre { background-color: #f2f2f2; padding: 2px 5px; border-radius: 5px; font-family: monospace; }
-  pre { padding: 1rem; overflow-x: auto; }
-  a { color: #007AFF; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .card { background: #fff; border-radius: 12px; padding: 1rem 1.5rem; margin: 1rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-  ul { margin: 0.5rem 0 1rem 1.5rem; }
-</style>
 </head>
 <body>
 
