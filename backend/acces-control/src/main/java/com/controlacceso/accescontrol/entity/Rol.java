@@ -23,6 +23,4 @@ public class Rol {
 
     @OneToMany(mappedBy = "rol")
     private List<UsuarioApp> usuariosApp;
-
-    // Getters y setters
 }
