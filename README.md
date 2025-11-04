@@ -8,7 +8,7 @@
 <h1>Proyecto Control de Acceso - CAM</h1>
 <p>Este repositorio centraliza todos los componentes del proyecto de control de acceso:</p>
 
-<<div class="card">
+<div class="card">
 <h2>1️⃣ API - Backend Spring Boot</h2>
 <p>Proporciona la lógica del negocio, endpoints REST para login, registro, gestión de empleados y registros horarios.</p>
 <ul>
