@@ -28,11 +28,11 @@ constexpr uint8_t PIN_BUZZER    = 15;
 
 /*const char* NOMBRE_RED     = "iPhone de Mateo";
 const char* CONTRASENA_RED = "Clave1652C";
-const char* API_KEY = "12345-ESP32-SECRET;"
+const char* API_KEY = "Alonso!GañaLa33;"
 */
 const char* NOMBRE_RED     = "Wifi-Pachorrudo";
 const char* CONTRASENA_RED = "Angel2023Martin2025";
-const char* API_KEY = "12345-ESP32-SECRET";
+const char* API_KEY = "Alonso!GañaLa33";
 
 // Dirección del servidor backend donde se enviará el UID de la tarjeta leída
 /*const char* URL_SERVIDOR = "http://172.20.10.6:20000/card/read";*/
@@ -175,7 +175,7 @@ void procesarTarjeta() {
   digitalWrite(PIN_LED_VERDE, LOW);
   digitalWrite(PIN_LED_ROJO, HIGH);
 
-  // Detiene la comunicación con la tarjeta (importante)
+  // Detiene la comunicación con la tarjeta
   lectorRFID.PICC_HaltA();
 
   delay(1000);  // Espera un segundo para evitar lecturas repetidas
