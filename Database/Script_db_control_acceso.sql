@@ -58,10 +58,10 @@ BEGIN
 END $$
 DELIMITER ;
 
--- Tabla roles (RBAC)
+-- Tabla roles
 CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_rol VARCHAR(50) UNIQUE NOT NULL COMMENT 'Ej: admin, usuario'
+    nombre_rol VARCHAR(50) UNIQUE NOT NULL COMMENT 'admin, usuario'
 );
 
 -- Tabla usuarios de la app
