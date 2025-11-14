@@ -54,7 +54,6 @@ public class AccesControlService {
         }
 
         //Guardar lo contrario al ultimo registro
-
         Registro nuevoRegistro = Registro.builder()
                 .empleado(card.getEmpleado())
                 .tipo(nuevoTipo)

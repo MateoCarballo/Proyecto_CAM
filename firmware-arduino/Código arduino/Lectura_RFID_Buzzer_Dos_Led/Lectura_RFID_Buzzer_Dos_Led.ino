@@ -112,7 +112,7 @@ String obtenerUIDTarjeta() {
     uid += String(lectorRFID.uid.uidByte[i], HEX);
   }
 
-  uid.toUpperCase();  // Convierte a mayúsculas (formato estándar)
+  uid.toUpperCase();  // Convierte a mayúsculas
   return uid;
 }
 
