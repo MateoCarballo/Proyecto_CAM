@@ -9,7 +9,7 @@
 <p>Este repositorio centraliza todos los componentes del proyecto de control de acceso:</p>
 
 <div class="card">
-<h2>1️⃣ API - Backend Spring Boot</h2>
+<h2>1️ API - Backend Spring Boot</h2>
 <p>Proporciona la lógica del negocio, endpoints REST para login, registro, gestión de empleados y registros horarios.</p>
 <ul>
 <li><a href="./backend">Carpeta Backend</a></li>
@@ -35,7 +35,7 @@
 </div>
 
 <div class="card">
-<h2>2️⃣ Firmware - Arduino</h2>
+<h2>2️ Firmware - Arduino</h2>
 <p>Microcontrolador encargado de leer tarjetas RFID y enviar eventos a la API REST.</p>
 <ul>
 <li><a href="./firmware-arduino">Carpeta Firmware Arduino</a></li>
@@ -47,7 +47,7 @@
 </div>
 
 <div class="card">
-<h2>3️⃣ App Android</h2>
+<h2>3️ App Android</h2>
 <p>Aplicación móvil para que los administradores y usuarios puedan consultar los registros horarios y gestionar empleados.</p>
 <ul>
 <li><a href="./mobile-android">Carpeta Android App</a></li>
@@ -58,7 +58,7 @@
 </div>
 
 <div class="card">
-<h2>4️⃣ Base de Datos</h2>
+<h2>4️ Base de Datos</h2>
 <p>Script SQL para creación de la base de datos y datos de prueba.</p>
 <ul>
 <li><a href="./Database">Carpeta Database</a></li>
@@ -70,7 +70,7 @@
 </div>
 
 <div class="card">
-<h2>6️⃣ Estructura recomendada</h2>
+<h2>5 Estructura recomendada</h2>
 <pre>
 ProyectoCAM/
 ├─ backend/           -> API Spring Boot
