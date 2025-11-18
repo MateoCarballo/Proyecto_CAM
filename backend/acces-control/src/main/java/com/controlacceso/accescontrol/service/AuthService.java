@@ -70,7 +70,8 @@ public class AuthService {
         // ✅ Ahora usamos JwtTokenProvider para generar el token correctamente
         String token = jwtTokenProvider.generarToken(
                 usuarioApp.getEmail(),
-                usuarioApp.getRol().getNombreRol()
+                usuarioApp.getRol().getNombreRol(),
+                Long.valueOf(usuarioApp.getId())  // Al usar un long en la
         );
 
         return LoginResponseDTO.builder()

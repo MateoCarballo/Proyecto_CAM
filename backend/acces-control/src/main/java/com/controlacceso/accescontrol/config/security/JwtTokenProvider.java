@@ -20,9 +20,9 @@ public class JwtTokenProvider {
     private long expirationMs;
 
     /**
-     * ✅ Genera un token JWT con email y rol del usuario
+     * Genera un token JWT con email y rol del usuario
      */
-    public String generarToken(String email, String rol) {
+    public String generarToken(String email, String rol, Long userId) {
         Date ahora = new Date();
         Date expiracion = new Date(ahora.getTime() + expirationMs);
 
@@ -30,7 +30,8 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(email)
-                .claim("rol", rol) // <-- añadimos el rol
+                .claim("rol", rol)
+                .claim("userId",userId)
                 .setIssuedAt(ahora)
                 .setExpiration(expiracion)
                 .signWith(key)
@@ -51,7 +52,7 @@ public class JwtTokenProvider {
     }
 
     /**
-     * ✅ Obtiene el rol del token JWT.
+     * Obtiene el rol del token JWT.
      */
     public String obtenerRolDeToken(String token) {
         Claims claims = Jwts.parserBuilder()
@@ -64,7 +65,20 @@ public class JwtTokenProvider {
     }
 
     /**
-     * ✅ Valida si el token es correcto y no ha expirado.
+     * Obtiene el userId del token JWT.
+     */
+    public Long obtenerUserIdDeToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("userId", Long.class);
+    }
+
+    /**
+     * Valida si el token es correcto y no ha expirado.
      */
     public boolean validarToken(String token) {
         try {

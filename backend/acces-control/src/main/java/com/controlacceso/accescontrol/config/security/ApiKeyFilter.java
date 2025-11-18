@@ -29,7 +29,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         // Solo proteger el endpoint /card/read
         if (path != null && path.startsWith("/card/read")) {
             String apiKey = request.getHeader(API_KEY_HEADER);
-            if (validarApiKey(apiKey)) {
+            if (!validarApiKey(apiKey)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("API Key inválida o no proporcionada");
                 return;
