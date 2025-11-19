@@ -11,6 +11,7 @@ composeBom = "2024.09.00"
 material3 = "1.4.0"
 uiText = "1.9.4"
 benchmarkTraceprocessor = "1.4.1"
+foundationLayoutAndroid = "1.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +33,7 @@ androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", ve
 androidx-benchmark-traceprocessor = { group = "androidx.benchmark", name = "benchmark-traceprocessor", version.ref = "benchmarkTraceprocessor" }
 
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version = "1.6.3" }
+androidx-compose-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -54,7 +54,7 @@ fun LoginScreen(
             .background(
                 Brush.linearGradient(
                     listOf(
-                        Color(0xFF0F2027), // degradado tecnológico
+                        Color(0xFF0F2027),
                         Color(0xFF203A43),
                         Color(0xFF2C5364)
                     )
