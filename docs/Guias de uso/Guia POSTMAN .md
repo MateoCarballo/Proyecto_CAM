@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Guion de Pruebas Postman - Moderno</title>
 <style>
+
     /* Tipografía moderna y ligera */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     
@@ -39,6 +40,7 @@
     .step-header {
         background: linear-gradient(90deg, #4a90e2 0%, #0078d7 100%);
         color: #fff;
+        
         padding: 15px 20px;
         font-weight: 500;
         font-size: 18px;
