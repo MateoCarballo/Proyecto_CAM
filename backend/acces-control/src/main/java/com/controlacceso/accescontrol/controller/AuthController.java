@@ -47,9 +47,23 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO request) {
         RegisterResponseDTO response = authService.register(request);
+
         if (!response.success()) {
-            return ResponseEntity.badRequest().body(response);
+            return switch (response.mensaje()) {
+                case "Empleado no encontrado" ->
+                        ResponseEntity.status(404).body(response);
+
+                case "El empleado ya tiene un usuario registrado", "El email ya está registrado" ->
+                        ResponseEntity.status(409).body(response);
+
+                case "No existe el rol 'usuario'" ->
+                        ResponseEntity.status(500).body(response);
+
+                default ->
+                        ResponseEntity.status(400).body(response); // error desconocido
+            };
         }
+
         return ResponseEntity.ok(response);
     }
 }
