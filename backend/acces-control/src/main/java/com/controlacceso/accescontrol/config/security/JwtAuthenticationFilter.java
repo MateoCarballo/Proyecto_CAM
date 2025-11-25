@@ -36,20 +36,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtTokenProvider.validarToken(token)) {
 
-                // ✅ Extraemos el email y el rol del JWT
+                //Extraemos el email y el rol del JWT
                 String email = jwtTokenProvider.obtenerEmailDeToken(token);
                 String rol = jwtTokenProvider.obtenerRolDeToken(token); // <-- Nuevo método en JwtTokenProvider
 
-                // ✅ Creamos la lista de autoridades con el rol extraído
+                //Creamos la lista de autoridades con el rol extraído
                 List<SimpleGrantedAuthority> authorities = Collections.singletonList(
                         new SimpleGrantedAuthority("ROLE_" + rol.toUpperCase())
                 );
 
-                // ✅ Creamos el objeto de autenticación con email y roles
+                //Creamos el objeto de autenticación con email y roles
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(email, null, authorities);
 
-                // ✅ Guardamos la autenticación en el contexto de seguridad
+                //Guardamos la autenticación en el contexto de seguridad
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

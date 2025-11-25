@@ -52,7 +52,7 @@ public class SecurityConfig {
                 // Luego el filtro JWT
                 .addFilterAfter(jwtAuthenticationFilter, ApiKeyFilter.class);
 
-        System.out.println("✅ Configuración de seguridad personalizada cargada correctamente");
+        System.out.println(">=================>Configuración de seguridad personalizada cargada correctamente");
 
         return http.build();
     }

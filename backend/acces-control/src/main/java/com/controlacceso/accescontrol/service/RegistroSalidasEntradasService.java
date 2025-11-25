@@ -1,8 +1,17 @@
 package com.controlacceso.accescontrol.service;
 
-import com.controlacceso.accescontrol.dto.*;
-import com.controlacceso.accescontrol.entity.*;
-import com.controlacceso.accescontrol.repository.*;
+import com.controlacceso.accescontrol.dto.EmpleadoRegistrosDTO;
+import com.controlacceso.accescontrol.dto.RegistroHorarioDiaDTO;
+import com.controlacceso.accescontrol.dto.RegistrosHorariosResponseDTO;
+import com.controlacceso.accescontrol.dto.TramoHorarioDTO;
+import com.controlacceso.accescontrol.entity.Empleado;
+import com.controlacceso.accescontrol.entity.Registro;
+import com.controlacceso.accescontrol.entity.Tarjeta;
+import com.controlacceso.accescontrol.entity.UsuarioApp;
+import com.controlacceso.accescontrol.repository.EmpleadoRepository;
+import com.controlacceso.accescontrol.repository.RegistroRepository;
+import com.controlacceso.accescontrol.repository.TarjetaRepository;
+import com.controlacceso.accescontrol.repository.UsuarioAppRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,15 +25,17 @@ public class RegistroSalidasEntradasService {
     private final TarjetaRepository tarjetaRepository;
     private final RegistroRepository registroRepository;
     private final UsuarioAppRepository usuarioAppRepository;
+    private final EmpleadoRepository empleadoRepository;
 
     public RegistroSalidasEntradasService(
             TarjetaRepository tarjetaRepository,
             RegistroRepository registroRepository,
-            UsuarioAppRepository usuarioAppRepository
+            UsuarioAppRepository usuarioAppRepository, EmpleadoRepository empleadoRepository
     ) {
         this.tarjetaRepository = tarjetaRepository;
         this.registroRepository = registroRepository;
         this.usuarioAppRepository = usuarioAppRepository;
+        this.empleadoRepository = empleadoRepository;
     }
 
     public RegistrosHorariosResponseDTO obtenerRegistrosPorFiltro() {
@@ -72,6 +83,8 @@ public class RegistroSalidasEntradasService {
         );
     }
 
+    /* AQUI SOLO TRAIA TODOS LOS USUARIOS REGISTRADOS, LA DE ABAJO TRAE TODOS ESTEN O NO REGISTRADOS
+
     // -------------------
     // Registros de todos los empleados (admin)
     // -------------------
@@ -81,6 +94,25 @@ public class RegistroSalidasEntradasService {
 
         for (UsuarioApp usuario : usuarios) {
             empleadosDTO.add(obtenerRegistrosDeEmpleado(usuario.getEmpleado()));
+        }
+
+        // Ordenar por idEmpleado
+        empleadosDTO.sort(Comparator.comparingInt(EmpleadoRegistrosDTO::idEmpleado));
+        return empleadosDTO;
+    }
+
+     */
+
+
+    // -------------------
+    // Registros de todos los empleados (admin)
+    // -------------------
+    private List<EmpleadoRegistrosDTO> obtenerRegistrosDeTodosLosEmpleados() {
+        List<Empleado> empleados = empleadoRepository.findAll(); // todos los empleados
+        List<EmpleadoRegistrosDTO> empleadosDTO = new ArrayList<>();
+
+        for (Empleado empleado : empleados) {
+            empleadosDTO.add(obtenerRegistrosDeEmpleado(empleado));
         }
 
         // Ordenar por idEmpleado
