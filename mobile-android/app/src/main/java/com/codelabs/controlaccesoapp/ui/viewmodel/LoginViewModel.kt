@@ -73,6 +73,8 @@ class LoginViewModel(
             //  perderlo si cierro y abro la app quiero poder tener
             //  la sesion iniciada. Quiza es algo demasiado tedioso y complicado
             result.onSuccess { response ->
+
+
                 _uiState.value = _uiState.value.copy(
                     isLoginSuccess = true,
                     token = response.token
