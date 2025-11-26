@@ -2,7 +2,7 @@ package com.codelabs.controlaccesoapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codelabs.controlaccesoapp.data.api.AuthRepository
+import com.codelabs.controlaccesoapp.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

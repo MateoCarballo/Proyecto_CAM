@@ -29,7 +29,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.codelabs.controlaccesoapp.data.api.AuthRepository
+import com.codelabs.controlaccesoapp.data.repository.AuthRepository
 import com.codelabs.controlaccesoapp.ui.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

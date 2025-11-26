@@ -175,6 +175,7 @@ fun CardEmpleado(empleado: Empleado) {
                         fontSize = 18.sp
                     )
                     Text(
+
                         text = "Rol: ${empleado.rol}",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
