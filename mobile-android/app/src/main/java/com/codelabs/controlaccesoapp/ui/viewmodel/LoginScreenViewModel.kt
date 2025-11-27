@@ -3,18 +3,20 @@ package com.codelabs.controlaccesoapp.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codelabs.controlaccesoapp.data.repository.AuthRepository
+import com.codelabs.controlaccesoapp.data.repository.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val repository: AuthRepository
+class LoginScreenViewModel(
+    private val repository: AuthRepository,
+    private val tokenManager: TokenManager,
 ) : ViewModel() {
 
     // Con esto hacemos que la parte inmutable pueda
     // ser visualizada desde la pantalla y solo modificada desde aquí
-    private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> = _uiState
+    private val _uiState = MutableStateFlow(LoginScreenUiState())
+    val uiState: StateFlow<LoginScreenUiState> = _uiState
 
     fun onEmailChanged(email: String) {
         _uiState.value = _uiState.value.copy(
@@ -73,12 +75,11 @@ class LoginViewModel(
             //  perderlo si cierro y abro la app quiero poder tener
             //  la sesion iniciada. Quiza es algo demasiado tedioso y complicado
             result.onSuccess { response ->
-
-
                 _uiState.value = _uiState.value.copy(
                     isLoginSuccess = true,
                     token = response.token
                 )
+                repository.saveToken(response.token)
             }.onFailure { throwable ->
                 _uiState.value = _uiState.value.copy(
                     errorMessage = throwable.message,

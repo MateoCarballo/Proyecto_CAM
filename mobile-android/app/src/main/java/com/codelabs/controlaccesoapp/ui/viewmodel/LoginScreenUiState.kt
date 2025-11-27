@@ -2,7 +2,7 @@ package com.codelabs.controlaccesoapp.ui.viewmodel
 
 // Este record tendra las variables que pueden modificar su estado en la pantall
 // de este modo las acciones sobre la pantalla se reflejaran en ellas y realizaran cambios en la UI
-data class LoginUiState(
+data class LoginScreenUiState(
     val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,

@@ -1,19 +1,21 @@
 package com.codelabs.controlaccesoapp.data.repository
 
 import com.codelabs.controlaccesoapp.data.api.RetrofitBuilder
-import com.codelabs.controlaccesoapp.data.model.RegistroHorariosResponse
+import com.codelabs.controlaccesoapp.data.model.HorariosResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
-class HorariosRepository {
+class HorariosRepository(
+    private val tokenManager: TokenManager
+) {
 
-    private val api = RetrofitBuilder.apiService
+    private val api = RetrofitBuilder.createApiService { tokenManager.getToken() }
 
     /**
      * Obtiene los registros del usuario usando el token de autenticación
      */
-    suspend fun obtenerRegistros(token: String): Result<RegistroHorariosResponse> {
+    suspend fun getHorariosRegistros(token: String?): Result<HorariosResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 // Se asume que el endpoint requiere el token en el header Authorization

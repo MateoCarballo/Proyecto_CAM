@@ -1,6 +1,6 @@
 package com.codelabs.controlaccesoapp.data.model
 
-data class TramoHorario(
+data class TimeRange(
     val horaEntrada: String,
-    val horaSalida: String?,
+    val horaSalida: String?
 )

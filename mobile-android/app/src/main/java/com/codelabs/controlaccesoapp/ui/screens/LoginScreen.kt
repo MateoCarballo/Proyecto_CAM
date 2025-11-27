@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,20 +27,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.codelabs.controlaccesoapp.data.repository.AuthRepository
-import com.codelabs.controlaccesoapp.ui.viewmodel.LoginViewModel
+import com.codelabs.controlaccesoapp.ui.viewmodel.LoginScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
+    viewModel: LoginScreenViewModel,
     onRegisterClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState() // Observamos el StateFlow del ViewModel
 
     Box(
         modifier = Modifier
@@ -56,11 +55,17 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Control de acceso", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Control de acceso",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(Modifier.height(16.dp))
+
             OutlinedTextField(
                 value = uiState.email,
-                onValueChange = { viewModel.onEmailChanged(it) },
+                onValueChange = viewModel::onEmailChanged,
                 placeholder = { Text("email@domain.com", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Rounded.Email, null, tint = Color.White) },
                 singleLine = true,
@@ -70,7 +75,7 @@ fun LoginScreen(
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = uiState.password,
-                onValueChange = { viewModel.onPasswordChanged(it) },
+                onValueChange = viewModel::onPasswordChanged,
                 placeholder = { Text("contraseña", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Rounded.Visibility, null, tint = Color.White) },
                 singleLine = true,
@@ -80,8 +85,8 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(16.dp))
 
-            if (uiState.errorMessage != null) {
-                Text(uiState.errorMessage, color = Color.Red, fontSize = 14.sp)
+            uiState.errorMessage?.let {
+                Text(it, color = Color.Red, fontSize = 14.sp)
                 Spacer(Modifier.height(8.dp))
             }
 
@@ -111,9 +116,3 @@ fun LoginScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    val dummyViewModel = LoginViewModel(AuthRepository())
-    LoginScreen(dummyViewModel)
-}

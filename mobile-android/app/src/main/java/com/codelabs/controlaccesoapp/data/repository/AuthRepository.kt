@@ -9,9 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
-class AuthRepository {
+class AuthRepository(
+    private val tokenManager: TokenManager
+) {
 
-    private val api = RetrofitBuilder.apiService
+    private val api = RetrofitBuilder.createApiService { tokenManager.getToken() }
 
     suspend fun login(
         email: String,
@@ -32,6 +34,14 @@ class AuthRepository {
                 Result.failure(e)
             }
         }
+    }
+
+    fun saveToken(token: String) {
+        tokenManager.saveToken(token)
+    }
+
+    fun getToken(): String?{
+        return tokenManager.getToken()
     }
 
     suspend fun register(

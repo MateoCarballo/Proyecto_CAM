@@ -1,6 +1,6 @@
 package com.codelabs.controlaccesoapp.data.model
 
-data class RegistroHorarioDia(
+data class DailyRecord(
     val fecha: String,
-    val horarios: List <TramoHorario>,
+    val horarios: List<TimeRange>
 )
