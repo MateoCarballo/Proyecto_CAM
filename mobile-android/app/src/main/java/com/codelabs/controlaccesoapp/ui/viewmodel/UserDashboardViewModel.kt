@@ -24,7 +24,8 @@ class UserDashboardViewModel(
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     /** Llamada inicial a la API para obtener registros */
-    fun cargarDatos() {
+    fun
+            cargarDatos() {
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: run {
                 _uiState.value = _uiState.value.copy(errorMessage = "Token no disponible")
