@@ -1,0 +1,73 @@
+@startuml Diagrama_Modelo_Entidades
+
+hide empty members
+
+title Modelo de Entidades y Repositorios (Capa de Persistencia)
+
+package "Entidades de Dominio" {
+    class Empleado {
+        - Integer id
+        - String nombre
+        - String apellidos
+        - boolean activo
+    }
+
+    class Tarjeta {
+        - Integer id
+        - String uid
+        - LocalDateTime fechaActivacion
+    }
+
+    class Registro {
+        - Integer id
+        - LocalDate fecha
+        - LocalTime hora
+        - TipoRegistro tipo
+    }
+
+    enum TipoRegistro {
+        + entrada
+        + salida
+    }
+
+    class UsuarioApp {
+        - Integer id
+        - String email
+        - String hashContrasena
+    }
+
+    class Rol {
+        - Integer id
+        - String nombreRol
+    }
+}
+
+package "Repositorios (JPA)" {
+    interface EmpleadoRepository
+    interface TarjetaRepository
+    interface RegistroRepository
+    interface UsuarioAppRepository
+    interface RolRepository
+
+    ' Herencia de Spring Data JPA
+    org.springframework.data.jpa.repository.JpaRepository <|-- EmpleadoRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- TarjetaRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- RegistroRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- UsuarioAppRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- RolRepository
+}
+
+' Relaciones entre Entidades
+Empleado "1" -- "0..*" Tarjeta : tiene asignadas
+Empleado "1" -- "0..*" Registro : genera
+Empleado "1" -- "1" UsuarioApp : tiene cuenta
+Rol "1" -- "0..*" UsuarioApp : define permisos
+
+' Relaciones de dependencia de Repositorios a Entidades
+TarjetaRepository ..> Tarjeta
+RegistroRepository ..> Registro
+EmpleadoRepository ..> Empleado
+UsuarioAppRepository ..> UsuarioApp
+RolRepository ..> Rol
+
+@enduml

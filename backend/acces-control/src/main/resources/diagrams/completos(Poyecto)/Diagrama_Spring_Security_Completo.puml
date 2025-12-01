@@ -1,0 +1,52 @@
+@startuml 03_Modulo_Seguridad_Completo
+'!theme cerulean'
+title [DETALLADO 3/3] Módulo de Seguridad (Filtros y JWT)
+
+package "Filtros y Configuración de Spring Security" {
+    class SecurityConfig {
+        - ApiKeyFilter apiKeyFilter
+        - JwtAuthenticationFilter jwtAuthenticationFilter
+        + AuthenticationManager authenticationManager(AuthenticationConfiguration)
+        + SecurityFilterChain filterChain(HttpSecurity)
+    }
+
+    class ApiKeyFilter {
+        - {static} String API_KEY_HEADER
+        - String esp32ApiKey
+        # void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+        - boolean validarApiKey(String)
+    }
+
+    class JwtAuthenticationFilter {
+        - JwtTokenProvider jwtTokenProvider
+        # void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+    }
+}
+
+package "Componentes de Autenticación" {
+    class JwtTokenProvider {
+        - String secretKey
+        - long expirationMs
+        + String generarToken(String,String,Long)
+        + String obtenerEmailDeToken(String)
+        + String obtenerRolDeToken(String)
+        + Long obtenerUserIdDeToken(String)
+        + boolean validarToken(String)
+    }
+
+    class AuthService {
+        - JwtTokenProvider jwtTokenProvider
+    }
+}
+
+' Herencia de Spring Security
+org.springframework.web.filter.OncePerRequestFilter <|-- JwtAuthenticationFilter
+org.springframework.web.filter.OncePerRequestFilter <|-- ApiKeyFilter
+
+' Relaciones de Dependencia (Uso)
+SecurityConfig ..> ApiKeyFilter : configura
+SecurityConfig ..> JwtAuthenticationFilter : configura
+JwtAuthenticationFilter ..> JwtTokenProvider : utiliza para validar
+AuthService ..> JwtTokenProvider : utiliza para generar token
+
+@enduml

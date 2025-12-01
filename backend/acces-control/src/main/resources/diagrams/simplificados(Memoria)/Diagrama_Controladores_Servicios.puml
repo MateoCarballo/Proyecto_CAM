@@ -1,0 +1,47 @@
+@startuml Diagrama_Servicios_y_Controladores_Unificado
+
+hide empty members
+
+title Capa de Negocio y Control (API REST)
+
+package "Controladores (Endpoints)" {
+    class AuthController
+    class AccesControlController
+    class RegistroSalidasEntradasController
+}
+
+package "Servicios (Lógica de Negocio)" {
+    class AuthService
+    class AccesControlService
+    class RegistroSalidasEntradasService
+}
+
+package "Repositorios (Interfaces)" {
+    interface TarjetaRepository
+    interface RegistroRepository
+    interface UsuarioAppRepository
+    interface EmpleadoRepository
+    interface RolRepository
+}
+
+' Flujo de Control (Controladores dependen de Servicios)
+' Eliminamos las palabras "usa" para limpiar el diagrama y usamos la dependencia implícita (..>)
+AuthController ..> AuthService
+AccesControlController ..> AccesControlService
+RegistroSalidasEntradasController ..> RegistroSalidasEntradasService
+
+' Flujo de Servicios (Servicios dependen de Repositorios)
+' Eliminamos las palabras "accede" para limpiar el diagrama
+AuthService ..> UsuarioAppRepository
+AuthService ..> EmpleadoRepository
+AuthService ..> RolRepository
+
+AccesControlService ..> TarjetaRepository
+AccesControlService ..> RegistroRepository
+
+RegistroSalidasEntradasService ..> TarjetaRepository
+RegistroSalidasEntradasService ..> RegistroRepository
+RegistroSalidasEntradasService ..> EmpleadoRepository
+RegistroSalidasEntradasService ..> UsuarioAppRepository
+
+@enduml

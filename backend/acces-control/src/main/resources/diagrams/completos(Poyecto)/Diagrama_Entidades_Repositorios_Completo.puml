@@ -1,0 +1,89 @@
+@startuml 01_Modelo_Datos_Completo_Vertical
+'!theme lightgray'
+title [DETALLADO 1/3] Modelo de Entidades, Repositorios y DTOs
+
+package "Entidades de Persistencia" {
+    class Empleado {
+        - Integer id
+        - String nombre
+        - String apellidos
+        - boolean activo
+        - LocalDateTime fechaCreacion
+        - List<Tarjeta> tarjetas
+        - List<Registro> registros
+        - UsuarioApp usuarioApp
+    }
+
+    class Tarjeta {
+        - Integer id
+        - String uid
+        - Empleado empleado
+        - LocalDateTime fechaActivacion
+        - LocalDateTime fechaDesactivacion
+    }
+
+    class Registro {
+        - Integer id
+        - Empleado empleado
+        - LocalDate fecha
+        - LocalTime hora
+        - TipoRegistro tipo
+    }
+
+    enum TipoRegistro {
+        +  entrada
+        +  salida
+    }
+
+    class UsuarioApp {
+        - Integer id
+        - Empleado empleado
+        - String email
+        - String hashContrasena
+        - Rol rol
+        - LocalDateTime fechaCreacion
+    }
+
+    class Rol {
+        - Integer id
+        - String nombreRol
+        - List<UsuarioApp> usuariosApp
+    }
+}
+
+package "Repositorios (Spring Data JPA)" {
+    interface TarjetaRepository {
+        ~ Optional<Tarjeta> findByUid(String)
+        ~ List<Tarjeta> findByEmpleadoId(Integer)
+    }
+
+    interface EmpleadoRepository
+    interface RolRepository {
+        ~ Optional<Rol> findByNombreRol(String)
+    }
+
+    interface RegistroRepository {
+        ~ Optional<Registro> findTopByEmpleadoIdOrderByFechaDescHoraDesc(Integer)
+        ~ List<Registro> findAllByEmpleadoIdOrderByFechaDescHoraDesc(Integer)
+        ~ List<Registro> findAllByOrderByFechaDescHoraDesc()
+    }
+
+    interface UsuarioAppRepository {
+        ~ Optional<UsuarioApp> findByEmail(String)
+    }
+
+    ' Herencia de Spring Data JPA (UML estándar, no requiere dirección)
+    org.springframework.data.jpa.repository.JpaRepository <|-- TarjetaRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- EmpleadoRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- RolRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- RegistroRepository
+    org.springframework.data.jpa.repository.JpaRepository <|-- UsuarioAppRepository
+}
+
+' Relaciones de Cardinalidad entre Entidades
+Empleado "1" -- "0..*" Tarjeta : tiene
+Empleado "1" -- "0..*" Registro : genera
+Empleado "1" -- "1" UsuarioApp : tiene cuenta
+Rol "1" -- "0..*" UsuarioApp : asignado
+
+@enduml

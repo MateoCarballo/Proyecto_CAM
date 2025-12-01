@@ -1,0 +1,149 @@
+@startuml 02_Capa_Negocio_Control_Completo_REFINADO_CRUCES
+'!theme lightgray'
+skinparam classAttributeIconSize 0
+
+title [DETALLADO 2/3] Capa de Lógica de Negocio, Controladores y DTOs (Cruces Minimizados)
+
+' Definiciones de clases externas necesarias para la compilación (simplemente declaradas para evitar errores)
+class JwtTokenProvider {
+    - String secretKey
+    - long expirationMs
+    ' ...
+}
+class Empleado {
+    ' ...
+}
+
+package "Controladores (Endpoints)" {
+    class AuthController {
+        - AuthService authService
+        + ResponseEntity<LoginResponseDTO> login(LoginRequestDTO)
+        + ResponseEntity<RegisterResponseDTO> register(RegisterRequestDTO)
+    }
+
+    class AccesControlController {
+        - AccesControlService accesControlService
+        + ResponseEntity<CardResponseDTO> readCard(CardRequestDTO)
+    }
+
+    class RegistroSalidasEntradasController {
+        - RegistroSalidasEntradasService registroService
+        + RegistrosHorariosResponseDTO obtenerRegistros()
+    }
+}
+
+package "Servicios (Lógica de Negocio)" {
+    class AuthService {
+        - UsuarioAppRepository usuarioAppRepository
+        - EmpleadoRepository empleadoRepository
+        - RolRepository rolRepository
+        - JwtTokenProvider jwtTokenProvider
+        + LoginResponseDTO login(LoginRequestDTO)
+        + RegisterResponseDTO register(RegisterRequestDTO)
+    }
+
+    class AccesControlService {
+        - TarjetaRepository tarjetaRepositoryImpl
+        - RegistroRepository registroRepositoryImpl
+        + CardResponseDTO proccesCard(String)
+    }
+
+    class RegistroSalidasEntradasService {
+        - TarjetaRepository tarjetaRepository
+        - RegistroRepository registroRepository
+        - UsuarioAppRepository usuarioAppRepository
+        - EmpleadoRepository empleadoRepository
+        + RegistrosHorariosResponseDTO obtenerRegistrosPorFiltro()
+        - EmpleadoRegistrosDTO obtenerRegistrosDeEmpleado(Empleado)
+        - List<EmpleadoRegistrosDTO> obtenerRegistrosDeTodosLosEmpleados()
+    }
+}
+
+package "Data Transfer Objects (DTOs)" {
+    class CardResponseDTO {
+        - String uid
+        - boolean authorized
+        - String message
+        - LocalDateTime timestamp
+    }
+
+    class LoginRequestDTO {
+        - String email
+        - String password
+    }
+
+    class LoginResponseDTO {
+        - String token
+        - String tipo
+        - String mensaje
+    }
+
+    class RegisterRequestDTO {
+        - Integer empleadoId
+        - String email
+        - String password
+    }
+
+    class RegisterResponseDTO {
+        - boolean success
+        - String mensaje
+    }
+
+    class CardRequestDTO {
+        - String uid
+    }
+
+    ' DTOs de Horarios
+    class TramoHorarioDTO
+    class RegistroHorarioDiaDTO
+    class EmpleadoRegistrosDTO
+    class RegistrosHorariosResponseDTO
+    class RegistroFiltroDTO
+}
+
+package "Repositorios (Interfaces)" {
+    interface TarjetaRepository
+    interface RegistroRepository
+    interface UsuarioAppRepository
+    interface EmpleadoRepository
+    interface RolRepository
+}
+
+' Conexiones de Flujo (Dependencia: ..>) - SIN DIRECCIÓN EXPLÍCITA PARA OPTIMIZAR EL TRAZADO
+
+' 1. Controladores usan Servicios
+AuthController ..> AuthService
+AccesControlController ..> AccesControlService
+RegistroSalidasEntradasController ..> RegistroSalidasEntradasService
+
+' 2. Comunicación con DTOs (Dependencia para parámetros/retornos)
+AuthController ..> LoginRequestDTO
+AuthController ..> RegisterRequestDTO
+AuthController ..> LoginResponseDTO
+AuthController ..> RegisterResponseDTO
+
+AccesControlController ..> CardRequestDTO
+AccesControlController ..> CardResponseDTO
+
+RegistroSalidasEntradasController ..> RegistrosHorariosResponseDTO
+RegistroSalidasEntradasController ..> RegistroFiltroDTO
+
+' 3. Relaciones internas y de Repositorio (Uso de DTOs internos y Repositorios)
+RegistroSalidasEntradasService ..> EmpleadoRegistrosDTO
+RegistroSalidasEntradasService ..> RegistroHorarioDiaDTO
+RegistroSalidasEntradasService ..> TramoHorarioDTO
+
+AuthService ..> UsuarioAppRepository
+AuthService ..> EmpleadoRepository
+AuthService ..> RolRepository
+AuthService ..> JwtTokenProvider
+
+AccesControlService ..> TarjetaRepository
+AccesControlService ..> RegistroRepository
+
+RegistroSalidasEntradasService ..> TarjetaRepository
+RegistroSalidasEntradasService ..> RegistroRepository
+RegistroSalidasEntradasService ..> EmpleadoRepository
+RegistroSalidasEntradasService ..> UsuarioAppRepository
+
+@enduml

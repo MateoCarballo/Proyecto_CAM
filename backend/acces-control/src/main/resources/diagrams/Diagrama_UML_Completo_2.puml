@@ -1,0 +1,282 @@
+@startuml
+class com.controlacceso.accescontrol.controller.AccesControlController {
+- AccesControlService accesControlService
++ ResponseEntity<CardResponseDTO> readCard(CardRequestDTO)
+}
+
+
+interface com.controlacceso.accescontrol.repository.TarjetaRepository {
+~ Optional<Tarjeta> findByUid(String)
+~ List<Tarjeta> findByEmpleadoId(Integer)
+}
+
+class com.controlacceso.accescontrol.dto.CardResponseDTO {
+- String uid
+- boolean authorized
+- String message
+- LocalDateTime timestamp
++ LocalDateTime timestamp()
++ boolean authorized()
++ String uid()
++ String message()
+}
+
+
+class com.controlacceso.accescontrol.dto.TramoHorarioDTO {
+- String horaEntrada
+- String horaSalida
++ String horaSalida()
++ String horaEntrada()
+}
+
+
+class com.controlacceso.accescontrol.entity.Empleado {
+- Integer id
+- String nombre
+- String apellidos
+- boolean activo
+- LocalDateTime fechaCreacion
+- List<Tarjeta> tarjetas
+- List<Registro> registros
+- UsuarioApp usuarioApp
+}
+
+class com.controlacceso.accescontrol.config.security.JwtTokenProvider {
+- String secretKey
+- long expirationMs
++ String generarToken(String,String,Long)
++ String obtenerEmailDeToken(String)
++ String obtenerRolDeToken(String)
++ Long obtenerUserIdDeToken(String)
++ boolean validarToken(String)
+}
+
+
+class com.controlacceso.accescontrol.dto.LoginRequestDTO {
+- String email
+- String password
++ String password()
++ String email()
+}
+
+
+class com.controlacceso.accescontrol.ControlDeAccesoPymeApplicationTests {
+~ void contextLoads()
+}
+
+class com.controlacceso.accescontrol.dto.RegistroHorarioDiaDTO {
+- String fecha
+- List<TramoHorarioDTO> horarios
++ List<TramoHorarioDTO> horarios()
++ String fecha()
+}
+
+
+class com.controlacceso.accescontrol.dto.EmpleadoRegistrosDTO {
+- Integer idEmpleado
+- String nombreEmpleado
+- String numeroTarjeta
+- List<RegistroHorarioDiaDTO> registrosPorDia
++ String numeroTarjeta()
++ List<RegistroHorarioDiaDTO> registrosPorDia()
++ String nombreEmpleado()
++ Integer idEmpleado()
+}
+
+
+class com.controlacceso.accescontrol.service.AuthService {
+- UsuarioAppRepository usuarioAppRepository
+- EmpleadoRepository empleadoRepository
+- RolRepository rolRepository
+- JwtTokenProvider jwtTokenProvider
++ LoginResponseDTO login(LoginRequestDTO)
++ RegisterResponseDTO register(RegisterRequestDTO)
+}
+
+
+class com.controlacceso.accescontrol.config.security.JwtAuthenticationFilter {
+- JwtTokenProvider jwtTokenProvider
+# void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+}
+
+
+class com.controlacceso.accescontrol.entity.Rol {
+- Integer id
+- String nombreRol
+- List<UsuarioApp> usuariosApp
+}
+
+class com.controlacceso.accescontrol.config.security.SecurityConfig {
+- ApiKeyFilter apiKeyFilter
+- JwtAuthenticationFilter jwtAuthenticationFilter
++ AuthenticationManager authenticationManager(AuthenticationConfiguration)
++ SecurityFilterChain filterChain(HttpSecurity)
+}
+
+
+class com.controlacceso.accescontrol.dto.CardRequestDTO {
+- String uid
++ String uid()
+}
+
+
+class com.controlacceso.accescontrol.config.security.ApiKeyFilter {
+- {static} String API_KEY_HEADER
+- String esp32ApiKey
+# void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+- boolean validarApiKey(String)
+}
+
+
+class com.controlacceso.accescontrol.dto.RegisterRequestDTO {
+- Integer empleadoId
+- String email
+- String password
++ Integer empleadoId()
++ String password()
++ String email()
+}
+
+
+interface com.controlacceso.accescontrol.repository.EmpleadoRepository {
+}
+interface com.controlacceso.accescontrol.repository.RolRepository {
+~ Optional<Rol> findByNombreRol(String)
+}
+
+class com.controlacceso.accescontrol.service.RegistroSalidasEntradasService {
+- TarjetaRepository tarjetaRepository
+- RegistroRepository registroRepository
+- UsuarioAppRepository usuarioAppRepository
+- EmpleadoRepository empleadoRepository
++ RegistrosHorariosResponseDTO obtenerRegistrosPorFiltro()
+- EmpleadoRegistrosDTO obtenerRegistrosDeEmpleado(Empleado)
+- List<EmpleadoRegistrosDTO> obtenerRegistrosDeTodosLosEmpleados()
+- Map<LocalDate,List<Registro>> agruparRegistrosPorDia(List<Registro>)
+- List<RegistroHorarioDiaDTO> convertirARegistroHorarioDiaDTO(Map<LocalDate,List<Registro>>)
+- List<TramoHorarioDTO> convertirATramos(List<Registro>)
+}
+
+
+class com.controlacceso.accescontrol.entity.Registro {
+- Integer id
+- Empleado empleado
+- LocalDate fecha
+- LocalTime hora
+- TipoRegistro tipo
+}
+
+enum com.controlacceso.accescontrol.entity.TipoRegistro {
++  entrada
++  salida
+}
+
+class com.controlacceso.accescontrol.service.AccesControlService {
+- TarjetaRepository tarjetaRepositoryImpl
+- RegistroRepository registroRepositoryImpl
++ CardResponseDTO proccesCard(String)
+}
+
+
+class com.controlacceso.accescontrol.dto.RegisterResponseDTO {
+- boolean success
+- String mensaje
++ boolean success()
++ String mensaje()
+}
+
+
+class com.controlacceso.accescontrol.dto.RegistroCompletoHorariosDTO {
+- String nombreEmpleado
+- Integer idEmpleado
+- String numeroTarjeta
+- List<RegistroHorarioDiaDTO> registrosHorariosPorDia
++ String numeroTarjeta()
++ String nombreEmpleado()
++ Integer idEmpleado()
++ List<RegistroHorarioDiaDTO> registrosHorariosPorDia()
+}
+
+
+class com.controlacceso.accescontrol.entity.UsuarioApp {
+- Integer id
+- Empleado empleado
+- String email
+- String hashContrasena
+- Rol rol
+- LocalDateTime fechaCreacion
+}
+
+class com.controlacceso.accescontrol.ControlDeAccesoPymeApplication {
++ {static} void main(String[])
+}
+
+class com.controlacceso.accescontrol.dto.RegistrosHorariosResponseDTO {
+- String rol
+- List<EmpleadoRegistrosDTO> empleados
++ String rol()
++ List<EmpleadoRegistrosDTO> empleados()
+}
+
+
+class com.controlacceso.accescontrol.controller.AuthController {
+- AuthService authService
++ ResponseEntity<LoginResponseDTO> login(LoginRequestDTO)
++ ResponseEntity<RegisterResponseDTO> register(RegisterRequestDTO)
+}
+
+
+class com.controlacceso.accescontrol.dto.LoginResponseDTO {
+- String token
+- String tipo
+- String mensaje
++ String token()
++ String tipo()
++ String mensaje()
+}
+
+
+interface com.controlacceso.accescontrol.repository.RegistroRepository {
+~ Optional<Registro> findTopByEmpleadoIdOrderByFechaDescHoraDesc(Integer)
+~ List<Registro> findAllByEmpleadoIdOrderByFechaDescHoraDesc(Integer)
+~ List<Registro> findAllByOrderByFechaDescHoraDesc()
+}
+
+class com.controlacceso.accescontrol.controller.RegistroSalidasEntradasController {
+- RegistroSalidasEntradasService registroService
++ RegistrosHorariosResponseDTO obtenerRegistros()
+}
+
+
+class com.controlacceso.accescontrol.entity.Tarjeta {
+- Integer id
+- String uid
+- Empleado empleado
+- LocalDateTime fechaActivacion
+- LocalDateTime fechaDesactivacion
+}
+
+interface com.controlacceso.accescontrol.repository.UsuarioAppRepository {
+~ Optional<UsuarioApp> findByEmail(String)
+}
+
+class com.controlacceso.accescontrol.dto.RegistroFiltroDTO {
+- String email
+- LocalDate fechaInicio
+- LocalDate fechaFin
++ LocalDate fechaInicio()
++ LocalDate fechaFin()
++ String email()
+}
+
+
+
+
+org.springframework.data.jpa.repository.JpaRepository <|-- com.controlacceso.accescontrol.repository.TarjetaRepository
+org.springframework.web.filter.OncePerRequestFilter <|-- com.controlacceso.accescontrol.config.security.JwtAuthenticationFilter
+org.springframework.web.filter.OncePerRequestFilter <|-- com.controlacceso.accescontrol.config.security.ApiKeyFilter
+org.springframework.data.jpa.repository.JpaRepository <|-- com.controlacceso.accescontrol.repository.EmpleadoRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.controlacceso.accescontrol.repository.RolRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.controlacceso.accescontrol.repository.RegistroRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.controlacceso.accescontrol.repository.UsuarioAppRepository
+@enduml

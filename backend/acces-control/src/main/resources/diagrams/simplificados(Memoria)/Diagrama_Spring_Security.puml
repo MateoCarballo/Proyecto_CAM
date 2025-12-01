@@ -1,0 +1,46 @@
+@startuml Diagrama_Modulo_Seguridad
+
+hide empty members
+
+title Módulo de Seguridad (API Key y JWT)
+
+package "Filtros y Configuración" {
+    class SecurityConfig {
+        + filterChain(HttpSecurity)
+        + authenticationManager()
+    }
+
+    class ApiKeyFilter {
+        - String esp32ApiKey
+        # doFilterInternal()
+    }
+
+    class JwtAuthenticationFilter {
+        - JwtTokenProvider jwtTokenProvider
+        # doFilterInternal()
+    }
+}
+
+package "Autenticación" {
+    class JwtTokenProvider {
+        + generarToken(String,String,Long)
+        + obtenerEmailDeToken(String)
+        + validarToken(String)
+    }
+
+    class AuthService {
+        + login(LoginRequestDTO)
+    }
+}
+
+' Relaciones de Herencia
+org.springframework.web.filter.OncePerRequestFilter <|-- JwtAuthenticationFilter
+org.springframework.web.filter.OncePerRequestFilter <|-- ApiKeyFilter
+
+' Relaciones de Dependencia/Inyección
+SecurityConfig .up.> ApiKeyFilter : configura
+SecurityConfig .up.> JwtAuthenticationFilter : configura
+JwtAuthenticationFilter .down.> JwtTokenProvider : usa para validar
+AuthService .down.> JwtTokenProvider : usa para generar token
+
+@enduml
