@@ -17,76 +17,56 @@ import com.codelabs.controlaccesoapp.ui.viewmodel.LoginScreenViewModelFactory
 import com.codelabs.controlaccesoapp.ui.viewmodel.UserDashboardViewModel
 import com.codelabs.controlaccesoapp.ui.viewmodel.UserDashboardViewModelFactory
 
-/*
-    val loginScreen = Screen(route = "loginScreen")
-    val userDashboardScreen = Screen(route = "userDashboardScreen")
- */
-
 @Composable
 fun AppNavigation(tokenManager: TokenManager) {
-    val loginScreen = Screen(route = "loginScreen")
-    val userDashboardScreen = Screen(route = "userDashboardScreen")
-
     val navController = rememberNavController()
 
-    val loginRepo = AuthRepository(tokenManager)
-    val dashboardRepo = HorariosRepository(tokenManager)
-
-    val loginViewModel: LoginScreenViewModel = viewModel(
-        factory = LoginScreenViewModelFactory(
-            repository = loginRepo,
-            tokenManager = tokenManager
-        )
-    )
-
-    val dashboardViewModel: UserDashboardViewModel = viewModel(
-        factory = UserDashboardViewModelFactory(
-            repository = dashboardRepo,
-            tokenManager = tokenManager
-        )
-
-    )
+// Repositorios fuera del NavHost para no recrearlos
+    val loginRepository = AuthRepository(tokenManager)
+    val dashboardRepository = HorariosRepository(tokenManager)
 
     NavHost(
         navController = navController,
-        startDestination = loginScreen.route
+        startDestination = Screen.Login.route
     ) {
-        composable(loginScreen.route) {
+        composable(Screen.Login.route) {
+            val loginViewModel: LoginScreenViewModel = viewModel(
+                factory = LoginScreenViewModelFactory(
+                    repository = loginRepository,
+                    tokenManager = tokenManager
+                )
+            )
+
             LoginScreen(
                 viewModel = loginViewModel,
-                onRegisterClick = {},
                 onLoginSuccess = {
-                    navController.navigate(
-                        route = userDashboardScreen.route
-                    ) {
-                        popUpTo(
-                            route = loginScreen.route
-                        ) {
-                            inclusive = true
-                        }
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
         }
 
-        composable(userDashboardScreen.route) {
+        composable(Screen.Dashboard.route) {
+            val dashboardViewModel: UserDashboardViewModel = viewModel(
+                factory = UserDashboardViewModelFactory(
+                    repository = dashboardRepository,
+                    tokenManager = tokenManager
+                )
+            )
+
             val uiState by dashboardViewModel.uiState.collectAsState()
+
             UserDashboardScreen(
                 uiState = uiState,
-                clearToken = {},
+                onLoadData = { dashboardViewModel.cargarDatos() },
                 onSelectYear = { dashboardViewModel.seleccionarAnho(it) },
                 onSelectMonth = { dashboardViewModel.seleccionarMes(it) },
-                onLoadData = {dashboardViewModel.cargarDatos()},
                 onLogout = {
-                    tokenManager.saveToken("")
-                    navController.navigate(
-                        route = loginScreen.route
-                    ) {
-                        popUpTo(
-                            route = navController.graph.startDestinationId
-                        ) {
-                            inclusive = true
-                        }
+                    dashboardViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Dashboard.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
@@ -94,7 +74,3 @@ fun AppNavigation(tokenManager: TokenManager) {
         }
     }
 }
-
-
-// Clase para definir rutas
-data class Screen(val route: String)

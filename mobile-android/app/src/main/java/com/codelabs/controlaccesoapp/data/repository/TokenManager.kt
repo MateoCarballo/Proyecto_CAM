@@ -5,7 +5,8 @@ import androidx.core.content.edit
 
 class TokenManager private constructor(context: Context) {
 
-    private val prefs = context.applicationContext.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext
+        .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
     fun saveToken(token: String) {
         prefs.edit { putString("auth_token", token) }
@@ -13,13 +14,18 @@ class TokenManager private constructor(context: Context) {
 
     fun getToken(): String? = prefs.getString("auth_token", null)
 
+    fun clearToken() {
+        prefs.edit { remove("auth_token") }
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: TokenManager? = null
 
         fun getInstance(context: Context): TokenManager =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: TokenManager(context.applicationContext).also { INSTANCE = it }
+                INSTANCE ?: TokenManager(context.applicationContext)
+                    .also { INSTANCE = it }
             }
     }
 }

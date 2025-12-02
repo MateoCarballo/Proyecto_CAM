@@ -10,82 +10,59 @@ import kotlinx.coroutines.launch
 
 class LoginScreenViewModel(
     private val repository: AuthRepository,
-    private val tokenManager: TokenManager,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    // Con esto hacemos que la parte inmutable pueda
-    // ser visualizada desde la pantalla y solo modificada desde aquí
     private val _uiState = MutableStateFlow(LoginScreenUiState())
     val uiState: StateFlow<LoginScreenUiState> = _uiState
 
     fun onEmailChanged(email: String) {
-        _uiState.value = _uiState.value.copy(
-            email = email,
-        )
+        _uiState.value = _uiState.value.copy(email = email, errorMessage = null)
     }
 
     fun onPasswordChanged(password: String) {
-        _uiState.value = _uiState.value.copy(
-            password = password,
-        )
+        _uiState.value = _uiState.value.copy(password = password, errorMessage = null)
     }
 
     fun login() {
-
-        val email = _uiState.value.email
+        val email = _uiState.value.email.trim()
         val password = _uiState.value.password
 
-        if (email.isBlank()){
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "El email no puede estar vacío"
-            )
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "El email no es válido"
-            )
-        }
-
-        if (password.length < 6){
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "La contraseña debe tener al menos 6 caracteres"
-            )
+        // Validaciones locales
+        when {
+            email.isBlank() -> {
+                _uiState.value = _uiState.value.copy(errorMessage = "El email no puede estar vacío")
+                return
+            }
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                _uiState.value = _uiState.value.copy(errorMessage = "El email no es válido")
+                return
+            }
+            password.length < 6 -> {
+                _uiState.value = _uiState.value.copy(errorMessage = "La contraseña debe tener al menos 6 caracteres")
+                return
+            }
         }
 
         viewModelScope.launch {
-
-            //Indicamos que estamos cargando
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                errorMessage = null,
-            )
-
-            val result = repository.login(
-                _uiState.value.email,
-                _uiState.value.password,
-            )
-
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-            )
-
-            //Procesar los resultados
-            // TODO como almaceno esto para no
-            //  perderlo si cierro y abro la app quiero poder tener
-            //  la sesion iniciada. Quiza es algo demasiado tedioso y complicado
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val result = repository.login(email, password)
+            _uiState.value = _uiState.value.copy(isLoading = false)
             result.onSuccess { response ->
-                _uiState.value = _uiState.value.copy(
-                    isLoginSuccess = true,
-                    token = response.token
-                )
-                repository.saveToken(response.token)
-            }.onFailure { throwable ->
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = throwable.message,
-                )
+                tokenManager.saveToken(response.token)
+                _uiState.value = _uiState.value.copy(isLoginSuccess = true)
+            }.onFailure { e ->
+                _uiState.value = _uiState.value.copy(errorMessage = e.message ?: "Error desconocido")
             }
-
         }
+    }
+
+    fun resetState() {
+        _uiState.value = LoginScreenUiState()
+    }
+
+    /** Limpia el error después de mostrarlo en Snackbar */
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }

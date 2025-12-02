@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codelabs.controlaccesoapp.data.model.DashboardUser
 import com.codelabs.controlaccesoapp.data.model.EmployeeRecords
-import com.codelabs.controlaccesoapp.data.repository.AuthRepository
 import com.codelabs.controlaccesoapp.data.repository.HorariosRepository
 import com.codelabs.controlaccesoapp.data.repository.TokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,38 +16,25 @@ class UserDashboardViewModel(
     private val repository: HorariosRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(UserDashBoardUiState())
     val uiState: StateFlow<UserDashBoardUiState> = _uiState
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    /** Llamada inicial a la API para obtener registros */
-    fun
-            cargarDatos() {
+    /** Carga inicial de datos desde la API */
+    fun cargarDatos() {
         viewModelScope.launch {
-            val token = tokenManager.getToken() ?: run {
+            val token = tokenManager.getToken()
+            if (token.isNullOrEmpty()) {
                 _uiState.value = _uiState.value.copy(errorMessage = "Token no disponible")
                 return@launch
             }
 
-            if (token.isEmpty()) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = "No hay token disponible"
-                )
-                return@launch
-            }
-
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             try {
                 val response = repository.getHorariosRegistros(token)
-                val employee = response.getOrThrow().empleados.firstOrNull()
-                    ?: return@launch // No hay empleados, salimos
-
+                val employee = response.getOrThrow().empleados.firstOrNull() ?: return@launch
                 val dashboardUser = DashboardUser(employeeInfo = employee)
                 _uiState.value = _uiState.value.copy(dashboardUser = dashboardUser)
                 prepararDatos(employee)
@@ -61,26 +47,21 @@ class UserDashboardViewModel(
         }
     }
 
-
-    /** Preparar años, meses y registros filtrados iniciales */
+    /** Prepara años, meses y registros iniciales */
     private fun prepararDatos(employee: EmployeeRecords) {
-        val fechas = employee.registrosPorDia.mapNotNull {
-            runCatching { dateFormat.parse(it.fecha) }.getOrNull()
-        }
-
+        val fechas = employee.registrosPorDia.mapNotNull { runCatching { dateFormat.parse(it.fecha) }.getOrNull() }
         if (fechas.isEmpty()) return
 
         val anhos = fechas.map { Calendar.getInstance().apply { time = it }.get(Calendar.YEAR) }
             .distinct().sortedDescending()
         val anhoSeleccionado = anhos.firstOrNull() ?: return
 
-        val meses = fechas.filter {
-            Calendar.getInstance().apply { time = it }.get(Calendar.YEAR) == anhoSeleccionado
-        }.map { Calendar.getInstance().apply { time = it }.get(Calendar.MONTH) + 1 }
+        val meses = fechas.filter { Calendar.getInstance().apply { time = it }.get(Calendar.YEAR) == anhoSeleccionado }
+            .map { Calendar.getInstance().apply { time = it }.get(Calendar.MONTH) + 1 }
             .distinct().sorted()
-        val mesSel = meses.firstOrNull() ?: return
+        val mesSeleccionado = meses.firstOrNull() ?: return
 
-        actualizarRegistros(employee, anhoSeleccionado, mesSel, anhos, meses)
+        actualizarRegistros(employee, anhoSeleccionado, mesSeleccionado, anhos, meses)
     }
 
     fun seleccionarAnho(anho: Int) {
@@ -89,8 +70,8 @@ class UserDashboardViewModel(
         val meses = fechas.filter { Calendar.getInstance().apply { time = it }.get(Calendar.YEAR) == anho }
             .map { Calendar.getInstance().apply { time = it }.get(Calendar.MONTH) + 1 }
             .distinct().sorted()
-        val mesSel = meses.firstOrNull() ?: return
-        actualizarRegistros(employee, anho, mesSel, _uiState.value.years, meses)
+        val mesSeleccionado = meses.firstOrNull() ?: return
+        actualizarRegistros(employee, anho, mesSeleccionado, _uiState.value.years, meses)
     }
 
     fun seleccionarMes(mes: Int) {
@@ -121,6 +102,10 @@ class UserDashboardViewModel(
             isLoading = false
         )
     }
+
+    /** Logout: limpia token y reinicia el estado de la UI */
+    fun logout() {
+        tokenManager.clearToken()
+        _uiState.value = UserDashBoardUiState()
+    }
 }
-
-

@@ -7,10 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.codelabs.controlaccesoapp.data.model.*
-import com.codelabs.controlaccesoapp.ui.theme.ControlAccesoAppTheme
+import com.codelabs.controlaccesoapp.data.model.DailyRecord
 import com.codelabs.controlaccesoapp.ui.viewmodel.UserDashBoardUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -20,21 +18,16 @@ fun UserDashboardScreen(
     onLoadData: () -> Unit,
     onSelectYear: (Int) -> Unit,
     onSelectMonth: (Int) -> Unit,
-    onLogout: () -> Unit,
-    clearToken: () -> Unit,
+    onLogout: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        onLoadData()
-    }
+    LaunchedEffect(Unit) { onLoadData() }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Dashboard") },
                 actions = {
-                    TextButton(onClick = {
-                        clearToken()
-                        onLogout()
-                    }) {
+                    TextButton(onClick = onLogout) {
                         Text("Logout")
                     }
                 }
@@ -47,19 +40,16 @@ fun UserDashboardScreen(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            // Loading
             if (uiState.isLoading) {
                 CircularProgressIndicator()
                 return@Column
             }
 
-            // Error
             uiState.errorMessage?.let {
                 Text("Error: $it", color = MaterialTheme.colorScheme.error)
                 return@Column
             }
 
-            // Employee info
             uiState.dashboardUser?.employeeInfo?.let { emp ->
                 Text(
                     text = "Welcome, ${emp.nombreEmpleado}",
@@ -68,7 +58,6 @@ fun UserDashboardScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Year selector
             if (uiState.years.isNotEmpty()) {
                 Text("Available Years")
                 Spacer(Modifier.height(8.dp))
@@ -76,15 +65,12 @@ fun UserDashboardScreen(
                     Button(
                         onClick = { onSelectYear(year) },
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                    ) {
-                        Text(text = year.toString())
-                    }
+                    ) { Text(year.toString()) }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Month selector
             if (uiState.months.isNotEmpty()) {
                 Text("Available Months")
                 Spacer(Modifier.height(8.dp))
@@ -92,15 +78,12 @@ fun UserDashboardScreen(
                     Button(
                         onClick = { onSelectMonth(month) },
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                    ) {
-                        Text(text = "Month ${month.toString().padStart(2, '0')}")
-                    }
+                    ) { Text("Month ${month.toString().padStart(2, '0')}") }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Filtered daily records
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(uiState.filteredRecords) { day ->
                     DailyRecordItem(day)
@@ -108,6 +91,7 @@ fun UserDashboardScreen(
             }
         }
     }
+
 }
 
 @Composable
@@ -121,12 +105,11 @@ fun DailyRecordItem(day: DailyRecord) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = "📅 ${day.fecha}", style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(6.dp))
-
             day.horarios.forEach { range ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 4.dp)
                 ) {
                     Text(text = "${range.horaEntrada} - ${range.horaSalida ?: "--"}")
                 }
@@ -134,4 +117,3 @@ fun DailyRecordItem(day: DailyRecord) {
         }
     }
 }
-
