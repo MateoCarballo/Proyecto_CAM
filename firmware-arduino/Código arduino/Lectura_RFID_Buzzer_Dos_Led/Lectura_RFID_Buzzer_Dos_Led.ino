@@ -24,12 +24,13 @@ constexpr uint8_t PIN_LED_VERDE = 4;
 constexpr uint8_t PIN_BUZZER    = 15;
 
 // Credenciales de la red WiFi
-const char* NOMBRE_RED     = "Wifi-Pachorrudo";
-const char* CONTRASENA_RED = "Angel2023Martin2025";
-const char* API_KEY        = "Alonso!GañaLa33";
+const char* NOMBRE_RED     = "WifiPachorrudo";
+const char* CONTRASENA_RED = "Angel2023Martin2025!";
+const char* API_KEY        = "Alonso!GanaLa33";
 
 // Dirección del servidor backend donde se enviará el UID de la tarjeta leída
-const char* URL_SERVIDOR = "http://192.168.1.50:20000/card/read";
+//const char* URL_SERVIDOR = "http://192.168.1.50:20000/card/read";
+const char* URL_SERVIDOR = "http://192.168.1.134:20000/card/read";
 
 // -------------------- INSTANCIAS --------------------
 
@@ -129,7 +130,6 @@ void enviarUIDAlServidor(const String& uid) {
   http.addHeader("x-api-key", API_KEY);
 
   String cuerpo = "{\"uid\":\"" + uid + "\"}";
-
   Serial.println("Enviando UID al servidor: " + cuerpo);
 
   int codigoRespuesta = http.POST(cuerpo);
@@ -137,7 +137,30 @@ void enviarUIDAlServidor(const String& uid) {
   if (codigoRespuesta > 0) {
     String respuesta = http.getString();
     Serial.println("Respuesta del servidor: " + respuesta);
-    emitirBipExito();
+
+    // -----------------------------------
+    // ANALIZAR RESPUESTA "authorized"
+    // -----------------------------------
+    bool autorizado = false;
+
+    if (respuesta.indexOf("\"authorized\":true") != -1) {
+      autorizado = true;
+    }
+
+    if (autorizado) {
+      Serial.println("Acceso permitido.");
+      emitirBipExito();     // Bip de éxito
+      digitalWrite(PIN_LED_VERDE, HIGH);
+      delay(300);
+      digitalWrite(PIN_LED_VERDE, LOW);
+
+    } else {
+      Serial.println("Acceso denegado (tarjeta no registrada).");
+      emitirBipError();     // Bip de error
+      digitalWrite(PIN_LED_ROJO, HIGH);
+      delay(500);
+    }
+
   } else {
     Serial.printf("Error HTTP (código %d)\n", codigoRespuesta);
     emitirBipError();
